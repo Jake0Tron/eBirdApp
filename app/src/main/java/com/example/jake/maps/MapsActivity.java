@@ -4,21 +4,22 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
+import android.graphics.Color;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -33,6 +34,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String provider;
     private LatLng myLocation;
 
+    private CircleOptions circle;
     private float lat, lon;
 
     @SuppressLint("NewApi")
@@ -101,6 +103,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+        circle = new CircleOptions()
+                .center(myLocation)
+                .radius(50.0)
+                .fillColor(Color.argb(100,0,180,220))
+                .strokeWidth(1.5f)
+                .strokeColor(Color.argb(180,0,140,200));
+        mMap.addCircle(circle);
+
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                // Camera Limits
+                if (cameraPosition.zoom > 18){
+                    CameraPosition camPos = new CameraPosition.Builder()
+                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .zoom(18)                   // Sets the zoom
+                                    //.bearing(90)                // Sets the orientation of the camera to east
+                            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .radius(50.0)
+                            .fillColor(Color.argb(100,0,180,220))
+                            .strokeWidth(1.5f)
+                            .strokeColor(Color.argb(180,0,140,200));
+                    mMap.addCircle(circle);
+                    mMap.addCircle(circle);
+                }
+                if (cameraPosition.zoom < 17){
+                    CameraPosition camPos = new CameraPosition.Builder()
+                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .zoom(17)                   // Sets the zoom
+                                    //.bearing(90)                // Sets the orientation of the camera to east
+                            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .radius(50.0)
+                            .fillColor(Color.argb(100,0,180,220))
+                            .strokeWidth(1.5f)
+                            .strokeColor(Color.argb(180,0,140,200));
+                    mMap.addCircle(circle);
+                    mMap.addCircle(circle);
+                }
+            }
+        });
+
     }
 
 
@@ -126,6 +177,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lat = (float) (location.getLatitude());
         lon = (float) (location.getLongitude());
         this.myLocation = new LatLng(lat, lon);
+
+
 
         //Log.d("LOCATION",lat + " x " + lon);
     }
