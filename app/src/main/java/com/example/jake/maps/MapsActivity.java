@@ -107,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .center(myLocation)
                 .radius(50.0)
                 .fillColor(Color.argb(100,0,180,220))
-                .strokeWidth(1.5f)
+                .strokeWidth(5f)
                 .strokeColor(Color.argb(180,0,140,200));
         mMap.addCircle(circle);
 
