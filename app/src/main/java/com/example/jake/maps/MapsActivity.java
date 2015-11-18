@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -30,6 +31,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //private TextView longitudeField;
     private LocationManager locationManager;
     private String provider;
+    private LatLng myLocation;
 
     private float lat, lon;
 
@@ -87,10 +89,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        LatLng myLocation = new LatLng(lat, lon);
+        this.myLocation = new LatLng(lat, lon);
 
-        mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+        mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
+        //http://stackoverflow.com/questions/14074129/google-maps-v2-set-both-my-location-and-zoom-in
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(myLocation)      // Sets the center of the map to Mountain View
+                .zoom(17)                   // Sets the zoom
+                //.bearing(90)                // Sets the orientation of the camera to east
+                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
     }
 
@@ -114,8 +123,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        lat = (int) (location.getLatitude());
-        lon = (int) (location.getLongitude());
+        lat = (float) (location.getLatitude());
+        lon = (float) (location.getLongitude());
+        this.myLocation = new LatLng(lat, lon);
+
         //Log.d("LOCATION",lat + " x " + lon);
     }
 
