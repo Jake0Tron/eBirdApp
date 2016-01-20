@@ -44,6 +44,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private SeekBar tiltBar, radiusBar;
 
+    // idle camera position
+    private CameraPosition campos;
+
+
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.tiltValue = 20;
 
         this.radiusBar = (SeekBar)findViewById(R.id.radiusBar);
+        this.radiusBar.setProgress((int) radiusValue);
         // set radius max to 200m
         this.radiusBar.setMax(200);
 
@@ -79,6 +84,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // handle seekBar changes
+                if (fromUser){
+                    radiusValue = progress;
+
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .strokeWidth(1.5f)
+                            .radius(radiusValue);
+                    //.fillColor(Color.argb(100,0,180,220))
+                    //
+                    //.strokeColor(Color.argb(180,0,140,200));
+                    mMap.clear();
+                    mMap.addCircle(circle);
+
+                }
+
             }
 
             @Override
@@ -153,17 +173,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
+                campos = cameraPosition;
                 float curZoomVal = cameraPosition.zoom;
                 float curBearing = cameraPosition.bearing;
                 float curTilt = cameraPosition.tilt;
-                // draw marker for my position
-                //mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
-
+                //mMap.clear();
                 // Camera Limits
                 if (cameraPosition.zoom >= maxZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to my location
-                            .zoom(maxZoom)                   // Sets the zoom
+                            .zoom(maxZoom - 0.01f)                   // Sets the zoom
                                     //.bearing(90)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
                             .build();                   // Creates a CameraPosition from the builder
@@ -176,13 +195,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             //.fillColor(Color.argb(100,0,180,220))
                             //
                             //.strokeColor(Color.argb(180,0,140,200));
-                    mMap.clear();
+                    //mMap.clear();
                     mMap.addCircle(circle);
                 }
                 else if (cameraPosition.zoom <= minZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to Mountain View
-                            .zoom(minZoom)                   // Sets the zoom
+                            .zoom(minZoom + 0.01f)                   // Sets the zoom
                                     //.bearing(90)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
@@ -195,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             //.fillColor(Color.argb(100,0,180,220))
                             //.strokeWidth(1.5f)
                             //.strokeColor(Color.argb(180,0,140,200));
-                    mMap.clear();
+                    //mMap.clear();
                     mMap.addCircle(circle);
                 }
                 else{
@@ -218,6 +237,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //mMap.clear();
 
                 }
+
                 mMap.addCircle(circle);
                 // draw marker for my position
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
@@ -230,7 +250,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // count
                 // details
 
-        // TODO: add tilt alteration via
 
         // TODO: add radius alteration
         // SEE LAYOUT radiusBar
@@ -240,15 +259,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @SuppressLint("NewApi")
     protected void onResume() {
         super.onResume();
-
-        locationManager.requestLocationUpdates(provider, 400, 1, this);
+        locationManager.requestLocationUpdates(provider, 800, 1, this);
     }
 
     @SuppressLint("NewApi")
     @Override
     protected void onPause() {
         super.onPause();
-
         locationManager.removeUpdates(this);
     }
 
@@ -259,8 +276,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lat = (float) (location.getLatitude());
         lon = (float) (location.getLongitude());
         this.myLocation = new LatLng(lat, lon);
-
-
 
         //Log.d("LOCATION",lat + " x " + lon);
     }
