@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.SeekBar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +42,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private float radiusValue;
 
+    private SeekBar tiltBar, radiusBar;
+
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +57,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // From Vogella
         // http://www.vogella.com/tutorials/AndroidLocationAPI/article.html
 
+        // camera zoom values
         this.maxZoom = 20;
         this.defZoom = 17;
         this.minZoom = 15;
+
+        // visual identification distance
         this.radiusValue = 50.0f;
-        this.tiltValue = 0;
+
+        // camera tilt
+        this.tiltValue = 20;
+
+        this.radiusBar = (SeekBar)findViewById(R.id.radiusBar);
+        // set radius max to 200m
+        this.radiusBar.setMax(200);
+
+        // RADIUS
+        // TODO: handle radius changes
+
+        this.radiusBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // handle seekBar changes
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         // Get the location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -117,18 +149,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         */
         mMap.addCircle(circle);
 
-        // end onMapReady
-
+        // handle camera change
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
+                float curZoomVal = cameraPosition.zoom;
+                float curBearing = cameraPosition.bearing;
+                float curTilt = cameraPosition.tilt;
+                // draw marker for my position
+                //mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
+
                 // Camera Limits
-                if (cameraPosition.zoom > maxZoom){
+                if (cameraPosition.zoom >= maxZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .target(myLocation)      // Sets the center of the map to my location
                             .zoom(maxZoom)                   // Sets the zoom
                                     //.bearing(90)                // Sets the orientation of the camera to east
-                            .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
+                            .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
 
@@ -139,14 +176,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             //.fillColor(Color.argb(100,0,180,220))
                             //
                             //.strokeColor(Color.argb(180,0,140,200));
+                    mMap.clear();
                     mMap.addCircle(circle);
                 }
-                if (cameraPosition.zoom < minZoom){
+                else if (cameraPosition.zoom <= minZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to Mountain View
                             .zoom(minZoom)                   // Sets the zoom
                                     //.bearing(90)                // Sets the orientation of the camera to east
-                            .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
+                            .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
 
@@ -157,10 +195,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             //.fillColor(Color.argb(100,0,180,220))
                             //.strokeWidth(1.5f)
                             //.strokeColor(Color.argb(180,0,140,200));
+                    mMap.clear();
                     mMap.addCircle(circle);
                 }
+                else{
+                    // lock camera on user
+                    CameraPosition camPos = new CameraPosition.Builder()
+                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .zoom(curZoomVal)                   // Sets the zoom
+                            .bearing(curBearing)                // Sets the orientation of the camera to east
+                            .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .strokeWidth(1.5f)
+                            .radius(radiusValue);
+                    //.fillColor(Color.argb(100,0,180,220))
+                    //.strokeWidth(1.5f)
+                    //.strokeColor(Color.argb(180,0,140,200));
+                    //mMap.clear();
+
+                }
+                mMap.addCircle(circle);
+                // draw marker for my position
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
             }// end onCameraChange
         });// end onCameraChangeListener
+
+        // TODO: handle pin addition for sightings
+            //TODO: add details for pin addition
+                // species
+                // count
+                // details
+
+        // TODO: add tilt alteration via
+
+        // TODO: add radius alteration
+        // SEE LAYOUT radiusBar
     }
 
 
