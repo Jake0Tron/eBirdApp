@@ -12,13 +12,13 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -37,6 +37,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private CircleOptions circle;
     private float lat, lon;
 
+    private int maxZoom, minZoom, defZoom, tiltValue;
+
+    private float radiusValue;
+
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +51,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // latituteField = (TextView) findViewById(R.id.lat);
-        // longitudeField = (TextView) findViewById(R.id.lon);
-
         // From Vogella
         // http://www.vogella.com/tutorials/AndroidLocationAPI/article.html
+
+        this.maxZoom = 22;
+        this.defZoom = 17;
+        this.minZoom = 12;
+        this.radiusValue = 50.0f;
+        this.tiltValue = 0;
 
         // Get the location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -64,7 +71,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initialize the location fields
         if (location != null) {
-            System.out.println("Provider " + provider + " has been selected.");
+            Log.d("LOCATIONprov", provider);
+                    System.out.println("Provider " + provider + " has been selected.");
             onLocationChanged(location);
         } else {
            // latituteField.setText("Location not available");
@@ -86,72 +94,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-//        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
         this.myLocation = new LatLng(lat, lon);
 
         mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
         //http://stackoverflow.com/questions/14074129/google-maps-v2-set-both-my-location-and-zoom-in
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
+                .zoom(defZoom)                   // Sets the zoom
                 //.bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-        circle = new CircleOptions()
-                .center(myLocation)
-                .radius(50.0)
-                .fillColor(Color.argb(100,0,180,220))
+       circle = new CircleOptions()
+                            .center(myLocation)
+                            .strokeWidth(1.5f)
+                            .radius(radiusValue);
+        /*
+                //.fillColor(Color.argb(100,0,180,220))
                 .strokeWidth(5f)
                 .strokeColor(Color.argb(180,0,140,200));
+        */
         mMap.addCircle(circle);
+
+        // end onMapReady
 
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
                 // Camera Limits
-                if (cameraPosition.zoom > 18){
+                if (cameraPosition.zoom > maxZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to Mountain View
-                            .zoom(18)                   // Sets the zoom
+                            .zoom(maxZoom)                   // Sets the zoom
                                     //.bearing(90)                // Sets the orientation of the camera to east
-                            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                            .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-                    circle = new CircleOptions()
-                            .center(myLocation)
-                            .radius(50.0)
-                            .fillColor(Color.argb(100,0,180,220))
-                            .strokeWidth(1.5f)
-                            .strokeColor(Color.argb(180,0,140,200));
-                    mMap.addCircle(circle);
-                    mMap.addCircle(circle);
-                }
-                if (cameraPosition.zoom < 17){
-                    CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLocation)      // Sets the center of the map to Mountain View
-                            .zoom(17)                   // Sets the zoom
-                                    //.bearing(90)                // Sets the orientation of the camera to east
-                            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-                    circle = new CircleOptions()
-                            .center(myLocation)
-                            .radius(50.0)
-                            .fillColor(Color.argb(100,0,180,220))
-                            .strokeWidth(1.5f)
-                            .strokeColor(Color.argb(180,0,140,200));
-                    mMap.addCircle(circle);
-                    mMap.addCircle(circle);
-                }
-            }
-        });
 
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .strokeWidth(1.5f)
+                            .radius(radiusValue);
+                            //.fillColor(Color.argb(100,0,180,220))
+                            //
+                            //.strokeColor(Color.argb(180,0,140,200));
+                    mMap.addCircle(circle);
+                }
+                if (cameraPosition.zoom < minZoom){
+                    CameraPosition camPos = new CameraPosition.Builder()
+                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .zoom(minZoom)                   // Sets the zoom
+                                    //.bearing(90)                // Sets the orientation of the camera to east
+                            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+
+                    circle = new CircleOptions()
+                            .center(myLocation)
+                            .strokeWidth(1.5f)
+                            .radius(radiusValue);
+                            //.fillColor(Color.argb(100,0,180,220))
+                            //.strokeWidth(1.5f)
+                            //.strokeColor(Color.argb(180,0,140,200));
+                    mMap.addCircle(circle);
+                }
+            }// end onCameraChange
+        });// end onCameraChangeListener
     }
 
 
