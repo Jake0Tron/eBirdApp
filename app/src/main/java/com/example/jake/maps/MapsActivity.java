@@ -54,9 +54,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // From Vogella
         // http://www.vogella.com/tutorials/AndroidLocationAPI/article.html
 
-        this.maxZoom = 22;
+        this.maxZoom = 20;
         this.defZoom = 17;
-        this.minZoom = 12;
+        this.minZoom = 15;
         this.radiusValue = 50.0f;
         this.tiltValue = 0;
 
