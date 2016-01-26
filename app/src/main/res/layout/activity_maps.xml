@@ -6,11 +6,17 @@
     android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/map_radius_title"
-        android:id="@+id/textView" />
+        android:id="@+id/radiusTitle" />
+    <TextView
+        android:layout_width="337dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/map_radius_title"
+        android:id="@+id/radiusValue" />
 
     <SeekBar
         android:layout_width="fill_parent"

@@ -2,8 +2,10 @@ package com.example.jake.maps;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -14,15 +16,19 @@ import android.os.Bundle;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 
 @SuppressWarnings("ALL")
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
@@ -41,52 +47,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int maxZoom, minZoom, defZoom, tiltValue;
 
     private float radiusValue;
+    private TextView radiusValueView;
 
-    private SeekBar tiltBar, radiusBar;
+    private SeekBar radiusBar;
 
     // idle camera position
     private CameraPosition campos;
 
+    // list of bird positions
+    ArrayList<String> birdPositions;
+
+    Context currentContext;
 
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        this.currentContext = this;
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        // Get the location manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
 
-        // From Vogella
-        // http://www.vogella.com/tutorials/AndroidLocationAPI/article.html
+        Location location = locationManager.getLastKnownLocation(provider);
+
+        this.birdPositions = new ArrayList<>();
 
         // camera zoom values
-        this.maxZoom = 20;
-        this.defZoom = 17;
-        this.minZoom = 15;
+        this.maxZoom = 25;
+        this.defZoom = 20;
+        this.minZoom = 10;
 
-        // visual identification distance
-        this.radiusValue = 50.0f;
-
-        // camera tilt
-        this.tiltValue = 20;
+        this.radiusValueView = (TextView) findViewById(R.id.radiusValue);
+        this.radiusValue = 1000.0f;
+        radiusValueView.setText(radiusValue + " m");
 
         this.radiusBar = (SeekBar)findViewById(R.id.radiusBar);
         this.radiusBar.setProgress((int) radiusValue);
-        // set radius max to 200m
-        this.radiusBar.setMax(200);
-
-        // RADIUS
-        // TODO: handle radius changes
+        this.radiusBar.setMax(5000);
 
         this.radiusBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // handle seekBar changes
-                if (fromUser){
+                if (fromUser) {
                     radiusValue = progress;
-
+                    String radV = String.valueOf(progress);
+                    radiusValueView.setText(radV + " m");
                     circle = new CircleOptions()
                             .center(myLocation)
                             .strokeWidth(1.5f)
@@ -98,7 +112,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.addCircle(circle);
 
                 }
-
             }
 
             @Override
@@ -110,25 +123,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
-        });
+        }); // end progress bar
 
-        // Get the location manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // Define the criteria how to select the locatioin provider -> use
-        // default
-        Criteria criteria = new Criteria();
-        provider = locationManager.getBestProvider(criteria, false);
-
-        Location location = locationManager.getLastKnownLocation(provider);
 
         // Initialize the location fields
         if (location != null) {
-            Log.d("LOCATIONprov", provider);
-                    System.out.println("Provider " + provider + " has been selected.");
             onLocationChanged(location);
-        } else {
-           // latituteField.setText("Location not available");
-           // longitudeField.setText("Location not available");
         }
     }
 
@@ -142,32 +142,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         this.myLocation = new LatLng(lat, lon);
+        // RADIUS
+        //handle radius changes
+        this.circle = new CircleOptions()
+                .center(myLocation)
+                .strokeWidth(1.5f)
+                .radius(radiusValue);
+        mMap.addCircle(circle);
 
-        mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
+        final MarkerOptions myMarker = new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon);
+        mMap.addMarker(myMarker);
+
         //http://stackoverflow.com/questions/14074129/google-maps-v2-set-both-my-location-and-zoom-in
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
                 .zoom(defZoom)                   // Sets the zoom
-                //.bearing(90)                // Sets the orientation of the camera to east
                 .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-       circle = new CircleOptions()
-                            .center(myLocation)
-                            .strokeWidth(1.5f)
-                            .radius(radiusValue);
-        /*
-                //.fillColor(Color.argb(100,0,180,220))
-                .strokeWidth(5f)
-                .strokeColor(Color.argb(180,0,140,200));
-        */
-        mMap.addCircle(circle);
+//       circle = new CircleOptions()
+//                            .center(myLocation)
+//                            .strokeWidth(1.5f)
+//                            .radius(radiusValue);
+//        /*
+//                //.fillColor(Color.argb(100,0,180,220))
+//                .strokeWidth(5f)
+//                .strokeColor(Color.argb(180,0,140,200));
+//        */
+//        mMap.addCircle(circle);
 
         // handle camera change
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
@@ -183,39 +191,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to my location
                             .zoom(maxZoom - 0.01f)                   // Sets the zoom
-                                    //.bearing(90)                // Sets the orientation of the camera to east
+                            .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
                             .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
 
-                    circle = new CircleOptions()
-                            .center(myLocation)
-                            .strokeWidth(1.5f)
-                            .radius(radiusValue);
-                            //.fillColor(Color.argb(100,0,180,220))
-                            //
-                            //.strokeColor(Color.argb(180,0,140,200));
-                    //mMap.clear();
-                    mMap.addCircle(circle);
                 }
                 else if (cameraPosition.zoom <= minZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
                             .target(myLocation)      // Sets the center of the map to Mountain View
                             .zoom(minZoom + 0.01f)                   // Sets the zoom
-                                    //.bearing(90)                // Sets the orientation of the camera to east
+                            .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
 
-                    circle = new CircleOptions()
-                            .center(myLocation)
-                            .strokeWidth(1.5f)
-                            .radius(radiusValue);
-                            //.fillColor(Color.argb(100,0,180,220))
-                            //.strokeWidth(1.5f)
-                            //.strokeColor(Color.argb(180,0,140,200));
-                    //mMap.clear();
-                    mMap.addCircle(circle);
                 }
                 else{
                     // lock camera on user
@@ -225,35 +213,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-
-                    circle = new CircleOptions()
-                            .center(myLocation)
-                            .strokeWidth(1.5f)
-                            .radius(radiusValue);
-                    //.fillColor(Color.argb(100,0,180,220))
-                    //.strokeWidth(1.5f)
-                    //.strokeColor(Color.argb(180,0,140,200));
-                    //mMap.clear();
 
                 }
 
-                mMap.addCircle(circle);
-                // draw marker for my position
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon));
             }// end onCameraChange
         });// end onCameraChangeListener
 
-        // TODO: handle pin addition for sightings
-            //TODO: add details for pin addition
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng longPressPos) {
+
+                final LatLng latLongPress = longPressPos;
+                // TODO: set final vars from user input for adb show
+
                 // species
+                final String species = "";
                 // count
+                final int count = 0;
                 // details
+                final String details = "";
+
+                // TODO: add user input for bird info in view, and retrieve it
+                AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
+                adb.setTitle("Bird Info")
+                        .setMessage("Enter Data here...")
+                        .setCancelable(false)
+                        .setPositiveButton("Record", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // HANDLE BUTTON PRESS FOR SUBMIT
 
 
-        // TODO: add radius alteration
-        // SEE LAYOUT radiusBar
+                                String birdInfo = "Bird Location:"
+                                        + latLongPress.latitude + " " + latLongPress.longitude
+                                        + "\nSpecies: " + species
+                                        + "\nNumber seen: " + String.valueOf(count)
+                                        + "\nDetails: " + details;
+
+                                //add list of Strings for bird info
+                                birdPositions.add(birdInfo);
+
+                                Log.d("BIRD INFO", birdInfo);
+
+
+
+                                mMap.addMarker(new MarkerOptions()
+                                                .position(latLongPress)
+                                                .snippet("SNIP")
+                                                .alpha(0.7f)
+                                                .draggable(true)
+                                                .icon(BitmapDescriptorFactory
+                                                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                                                .title(birdInfo)
+                                );
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Cancel
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog dialog = adb.create();
+
+                dialog.show();
+            }
+        });
+
     }
+
 
 
     @SuppressLint("NewApi")
@@ -276,8 +306,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lat = (float) (location.getLatitude());
         lon = (float) (location.getLongitude());
         this.myLocation = new LatLng(lat, lon);
-
-        //Log.d("LOCATION",lat + " x " + lon);
     }
 
     @Override

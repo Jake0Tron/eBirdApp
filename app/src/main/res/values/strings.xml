@@ -2,5 +2,5 @@
     <string name="app_name">eBird App</string>
     <string name="title_activity_maps">eBird App</string>
     <string name="map_radius_title">View Radius</string>
-    <string name="map_tilt_title">Map Tilt</string>
+    <string name="map_radius_value">0km</string>
 </resources>
