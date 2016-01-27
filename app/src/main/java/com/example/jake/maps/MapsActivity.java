@@ -28,8 +28,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -39,13 +41,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Fragment fragment;
-    //private TextView latituteField;
-    //private TextView longitudeField;
+
+    private Marker myMark;
+    private MarkerOptions myMarker;
+
+    private Circle myCirc;
+    private CircleOptions circle;
+
     private LocationManager locationManager;
     private String provider;
-    private LatLng myLocation;
 
-    private CircleOptions circle;
+    private LatLng myLocation;
     private float lat, lon;
 
     private int maxZoom, minZoom, defZoom, tiltValue;
@@ -65,11 +71,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Alert Dialog data fields
 
-    // EditTexts
     EditText birdBreed,
-            birdQuantity,
-            birdAge,
-            birdNotes;
+    birdQuantity,
+    birdAge,
+    birdNotes;
 
     Spinner birdBreedingSpinner;
     String birdBreedString, birdQuantityString, birdAgeString, birdNoteString, breedingStatString;
@@ -123,8 +128,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //.fillColor(Color.argb(100,0,180,220))
                     //
                     //.strokeColor(Color.argb(180,0,140,200));
-                    mMap.clear();
-                    mMap.addCircle(circle);
+                    if (myCirc != null) {
+                        myCirc.remove();
+                        myCirc = mMap.addCircle(circle);
+                    }
+
+                    myMark.remove();
+                    myMark = mMap.addMarker(myMarker);
 
                 }
             }
@@ -139,7 +149,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         }); // end progress bar
-
 
         // Initialize the location fields
         if (location != null) {
@@ -162,6 +171,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+
+        myMarker = new MarkerOptions()
+                .position(myLocation)
+                .title("My Location: " + lat + " + " + lon);
+        myMark = mMap.addMarker(myMarker);
+
         this.myLocation = new LatLng(lat, lon);
         //Circle RADIUS
         //handle radius changes
@@ -169,14 +184,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .center(myLocation)
                 .strokeWidth(1.5f)
                 .radius(radiusValue);
-        mMap.addCircle(circle);
+        myCirc = mMap.addCircle(circle);
 
-        final MarkerOptions myMarker = new MarkerOptions()
-                .position(myLocation)
-                .title("My Location: " + lat + " + " + lon);
-        mMap.addMarker(myMarker);
-
-        //http://stackoverflow.com/questions/14074129/google-maps-v2-set-both-my-location-and-zoom-in
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
                 .zoom(16)                   // Sets the zoom
@@ -202,6 +211,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 float curZoomVal = cameraPosition.zoom;
                 float curBearing = cameraPosition.bearing;
                 float curTilt = cameraPosition.tilt;
+                myMarker = new MarkerOptions()
+                        .position(myLocation)
+                        .title("My Location: " + lat + " + " + lon);
                 // Camera Limits
                 if (cameraPosition.zoom >= maxZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
@@ -211,6 +223,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    myMark.remove();
+                    myMark = mMap.addMarker(myMarker);
+
                 }
                 else if (cameraPosition.zoom <= minZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
@@ -220,6 +235,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    myMark.remove();
+                    myMark = mMap.addMarker(myMarker);
                 }
                 else{
                     // lock camera on user
@@ -229,6 +246,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
+                    myMark.remove();
+                    myMark = mMap.addMarker(myMarker);
                 }
 
             }// end onCameraChange
