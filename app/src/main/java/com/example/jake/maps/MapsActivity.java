@@ -15,7 +15,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,6 +60,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<String> birdPositions;
 
     Context currentContext;
+
+    // Alert Dialog data fields
+
+    // EditTexts
+    EditText birdBreed,
+            birdQuantity,
+            birdAge,
+            birdNotes;
+
+    Spinner birdBreedingSpinner;
+
+
 
     @SuppressLint("NewApi")
     @Override
@@ -255,8 +269,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 Log.d("BIRD INFO", birdInfo);
 
-
-
                                 mMap.addMarker(new MarkerOptions()
                                                 .position(latLongPress)
                                                 .snippet("SNIP")
@@ -265,7 +277,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 .icon(BitmapDescriptorFactory
                                                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                                                 .title(birdInfo)
-                                );
+                                );// end marker create
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

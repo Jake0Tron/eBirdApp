@@ -3,4 +3,10 @@
     <string name="title_activity_maps">eBird App</string>
     <string name="map_radius_title">View Radius</string>
     <string name="map_radius_value">0km</string>
+
+    <string name="bird_data_name">Bird Species</string>
+    <string name="bird_data_age">Bird Age</string>
+    <string name="bird_data_quantity">Quantity</string>
+    <string name="bird_data_notes">Notes...</string>
+
 </resources>
