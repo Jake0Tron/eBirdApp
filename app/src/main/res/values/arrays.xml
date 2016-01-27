@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="breeding_status">
+        <item>ABC</item>
+        <item>ABC</item>
+        <item>ABC</item>
+        <item>ABC</item>
+        <item>ABC</item>
+    </string-array>
+
+</resources>

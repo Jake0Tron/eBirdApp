@@ -1,20 +1,22 @@
 package com.example.jake.maps;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.graphics.Color;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -70,8 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             birdNotes;
 
     Spinner birdBreedingSpinner;
-
-
+    String birdBreedString, birdQuantityString, birdAgeString, birdNoteString, breedingStatString;
 
     @SuppressLint("NewApi")
     @Override
@@ -95,17 +96,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.birdPositions = new ArrayList<>();
 
         // camera zoom values
-        this.maxZoom = 25;
-        this.defZoom = 20;
-        this.minZoom = 10;
+        this.maxZoom = 30;  // close
+        this.defZoom = 16;
+        this.minZoom = 12;  // far
 
         this.radiusValueView = (TextView) findViewById(R.id.radiusValue);
         this.radiusValue = 1000.0f;
         radiusValueView.setText(radiusValue + " m");
 
         this.radiusBar = (SeekBar)findViewById(R.id.radiusBar);
-        this.radiusBar.setProgress((int) radiusValue);
         this.radiusBar.setMax(5000);
+        this.radiusBar.setProgress((int) radiusValue);
 
         this.radiusBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -162,7 +163,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         this.myLocation = new LatLng(lat, lon);
-        // RADIUS
+        //Circle RADIUS
         //handle radius changes
         this.circle = new CircleOptions()
                 .center(myLocation)
@@ -170,13 +171,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .radius(radiusValue);
         mMap.addCircle(circle);
 
-        final MarkerOptions myMarker = new MarkerOptions().position(myLocation).title("My Location: " + lat + " + " + lon);
+        final MarkerOptions myMarker = new MarkerOptions()
+                .position(myLocation)
+                .title("My Location: " + lat + " + " + lon);
         mMap.addMarker(myMarker);
 
         //http://stackoverflow.com/questions/14074129/google-maps-v2-set-both-my-location-and-zoom-in
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
-                .zoom(defZoom)                   // Sets the zoom
+                .zoom(16)                   // Sets the zoom
                 .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -199,7 +202,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 float curZoomVal = cameraPosition.zoom;
                 float curBearing = cameraPosition.bearing;
                 float curTilt = cameraPosition.tilt;
-                //mMap.clear();
                 // Camera Limits
                 if (cameraPosition.zoom >= maxZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
@@ -208,16 +210,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
                             .build();                   // Creates a CameraPosition from the builder
-
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
                 }
                 else if (cameraPosition.zoom <= minZoom){
                     CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLocation)      // Sets the center of the map to Mountain View
+                            .target(myLocation)      // Sets the center of the map to me
                             .zoom(minZoom + 0.01f)                   // Sets the zoom
                             .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
-
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
                 }
                 else{
                     // lock camera on user
@@ -227,58 +229,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .bearing(curBearing)                // Sets the orientation of the camera to east
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
-
                 }
 
             }// end onCameraChange
         });// end onCameraChangeListener
 
+
+        // Handle Long Press on Map to drop a Marker for Sighted Bird
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng longPressPos) {
-
                 final LatLng latLongPress = longPressPos;
-                // TODO: set final vars from user input for adb show
 
-                // species
-                final String species = "";
-                // count
-                final int count = 0;
-                // details
-                final String details = "";
-
-                // TODO: add user input for bird info in view, and retrieve it
+                Log.d("LongPress", "Building Alert Dialog");
+                // build Alert Dialog
                 AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
-                adb.setTitle("Bird Info")
-                        .setMessage("Enter Data here...")
-                        .setCancelable(false)
+                LayoutInflater inflater = MapsActivity.this.getLayoutInflater();
+
+                // TODO: /strings this
+                adb
+                        .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))
+                        .setTitle("Bird Sighting Info")
+                                //.setMessage("Enter Data here...")
+                                //  set custom view
                         .setPositiveButton("Record", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // HANDLE BUTTON PRESS FOR SUBMIT
+                                Dialog d = (Dialog) dialog;
+                                Log.d("LongPress", "Button Clicked...");
+                                birdBreed = (EditText) d.findViewById(R.id.birdName);
+                                birdAge = (EditText) d.findViewById(R.id.birdAge);
+                                birdQuantity = (EditText) d.findViewById(R.id.birdQuantity);
+                                birdNotes = (EditText) d.findViewById(R.id.birdNotes);
+                                Log.d("LongPress", "Spinner Build");
+                                birdBreedingSpinner = (Spinner) d.findViewById(R.id.birdBreeding);
 
+                                // array adapter for spinner
+                                ArrayAdapter<CharSequence> breedingStatusAdapter =
+                                        ArrayAdapter.createFromResource(currentContext,
+                                                R.array.breeding_status,
+                                                android.R.layout.simple_spinner_item);
 
-                                String birdInfo = "Bird Location:"
-                                        + latLongPress.latitude + " " + latLongPress.longitude
-                                        + "\nSpecies: " + species
-                                        + "\nNumber seen: " + String.valueOf(count)
-                                        + "\nDetails: " + details;
+                                // set arrayAdapter
+                                birdBreedingSpinner.setAdapter(breedingStatusAdapter);
 
-                                //add list of Strings for bird info
-                                birdPositions.add(birdInfo);
+                                birdBreedingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                    @Override
+                                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                        breedingStatString = parent.getItemAtPosition(position).toString();
+                                        Log.d("LongPress","FUCK Sel+");
+                                    }
 
-                                Log.d("BIRD INFO", birdInfo);
+                                    @Override
+                                    public void onNothingSelected(AdapterView<?> parent) {
+                                        breedingStatString ="None";
+                                        Log.d("LongPress","FUCK NOSel");
+                                    }
+                                });
+                                onLongPressAddBird(latLongPress, birdBreed, birdAge, birdQuantity, birdNotes, breedingStatString);
 
-                                mMap.addMarker(new MarkerOptions()
-                                                .position(latLongPress)
-                                                .snippet("SNIP")
-                                                .alpha(0.7f)
-                                                .draggable(true)
-                                                .icon(BitmapDescriptorFactory
-                                                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                                                .title(birdInfo)
-                                );// end marker create
-                            }
+                            }// end on Submit button click
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
@@ -296,7 +306,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void onLongPressAddBird(LatLng press, EditText breed, EditText age, EditText quan, EditText notes, String breeding){
+        // species
 
+        String breedS = breed.getText().toString();
+
+        // age      ** CHECK THIS FOR VALUES
+        int ageI = Integer.valueOf(age.getText().toString());
+
+        // count    ** CHECK THIS FOR VALUES
+        int quantityI = Integer.valueOf(quan.getText().toString());
+
+        // details
+        String notesS = notes.getText().toString();
+
+        // breeding status
+
+        String birdInfo = String.valueOf(quantityI) + " " + breedS;
+        String birdSnip = "Seen at" + press.latitude + " " + press.longitude;
+
+        //add list of Strings for bird info
+        birdPositions.add(birdInfo);
+
+        Log.d("BIRD INFO", birdInfo);
+
+        // HANDLE BUTTON PRESS FOR SUBMIT
+        mMap.addMarker(new MarkerOptions()
+                        .position(press)
+                        .alpha(0.7f)
+                        .draggable(false)
+                        .icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .title(birdInfo)
+                        .snippet(birdSnip)
+        );// end marker create
+    }
 
     @SuppressLint("NewApi")
     protected void onResume() {
