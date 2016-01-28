@@ -280,6 +280,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 birdAge = (EditText) d.findViewById(R.id.birdAge);
                                 birdQuantity = (EditText) d.findViewById(R.id.birdQuantity);
                                 birdNotes = (EditText) d.findViewById(R.id.birdNotes);
+
+                                // TODO: Move this before button click
                                 Log.d("LongPress", "Spinner Build");
                                 birdBreedingSpinner = (Spinner) d.findViewById(R.id.birdBreeding);
 
@@ -342,7 +344,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // breeding status
 
         String birdInfo = String.valueOf(quantityI) + " " + breedS;
-        String birdSnip = "Seen at" + press.latitude + " " + press.longitude;
+        String birdSnip = "Seen at " + press.latitude + " " + press.longitude;
 
         //add list of Strings for bird info
         birdPositions.add(birdInfo);
