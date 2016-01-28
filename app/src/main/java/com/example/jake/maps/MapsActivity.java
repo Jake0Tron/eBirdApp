@@ -267,10 +267,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // TODO: /strings this
                 adb
-                        .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))
-                        .setTitle("Bird Sighting Info")
-                                //.setMessage("Enter Data here...")
-                                //  set custom view
+                    .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))
+                    .setTitle("Bird Sighting Info");
+                //adb.show();
+
+
+                adb
+                            //.setMessage("Enter Data here...")
+                            //  set custom view
                         .setPositiveButton("Record", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -280,16 +284,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 birdAge = (EditText) d.findViewById(R.id.birdAge);
                                 birdQuantity = (EditText) d.findViewById(R.id.birdQuantity);
                                 birdNotes = (EditText) d.findViewById(R.id.birdNotes);
-
                                 // TODO: Move this before button click
                                 Log.d("LongPress", "Spinner Build");
-                                birdBreedingSpinner = (Spinner) d.findViewById(R.id.birdBreeding);
+                                birdBreedingSpinner = (Spinner) findViewById(R.id.birdBreeding);
 
                                 // array adapter for spinner
                                 ArrayAdapter<CharSequence> breedingStatusAdapter =
                                         ArrayAdapter.createFromResource(currentContext,
                                                 R.array.breeding_status,
                                                 android.R.layout.simple_spinner_item);
+
+                                if (birdBreedingSpinner == null) {
+                                    //TODO: FIX ME
+                                    Log.d("LongPress", "SPINNER IS NULL!!!!");
+                                }
 
                                 // set arrayAdapter
                                 birdBreedingSpinner.setAdapter(breedingStatusAdapter);
@@ -298,26 +306,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     @Override
                                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                         breedingStatString = parent.getItemAtPosition(position).toString();
-                                        Log.d("LongPress","FUCK Sel+");
                                     }
 
                                     @Override
                                     public void onNothingSelected(AdapterView<?> parent) {
-                                        breedingStatString ="None";
-                                        Log.d("LongPress","FUCK NOSel");
+                                        breedingStatString = "None";
                                     }
                                 });
+
+
                                 onLongPressAddBird(latLongPress, birdBreed, birdAge, birdQuantity, birdNotes, breedingStatString);
 
                             }// end on Submit button click
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Cancel
-                                dialog.cancel();
-                            }
-                        });
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Cancel
+                            dialog.cancel();
+                        }
+                    });
 
                 AlertDialog dialog = adb.create();
 
