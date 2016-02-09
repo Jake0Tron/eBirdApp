@@ -260,21 +260,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapLongClick(LatLng longPressPos) {
                 final LatLng latLongPress = longPressPos;
 
-                Log.d("LongPress", "Building Alert Dialog");
                 // build Alert Dialog
                 AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
                 LayoutInflater inflater = MapsActivity.this.getLayoutInflater();
 
                 // TODO: /strings this
                 adb
-                    .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))
-                    .setTitle("Bird Sighting Info");
+                    .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))//  set custom view
+                    .setTitle("Bird Sighting Info");// set title
                 //adb.show();
 
-
                 adb
-                            //.setMessage("Enter Data here...")
-                            //  set custom view
+                        //.setMessage("Enter Data here...")
                         .setPositiveButton("Record", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -285,35 +282,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 birdQuantity = (EditText) d.findViewById(R.id.birdQuantity);
                                 birdNotes = (EditText) d.findViewById(R.id.birdNotes);
                                 // TODO: Move this before button click
-                                Log.d("LongPress", "Spinner Build");
-                                birdBreedingSpinner = (Spinner) findViewById(R.id.birdBreeding);
-
-                                // array adapter for spinner
-                                ArrayAdapter<CharSequence> breedingStatusAdapter =
-                                        ArrayAdapter.createFromResource(currentContext,
-                                                R.array.breeding_status,
-                                                android.R.layout.simple_spinner_item);
-
-                                if (birdBreedingSpinner == null) {
-                                    //TODO: FIX ME
-                                    Log.d("LongPress", "SPINNER IS NULL!!!!");
-                                }
-
-                                // set arrayAdapter
-                                birdBreedingSpinner.setAdapter(breedingStatusAdapter);
-
-                                birdBreedingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                    @Override
-                                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                        breedingStatString = parent.getItemAtPosition(position).toString();
-                                    }
-
-                                    @Override
-                                    public void onNothingSelected(AdapterView<?> parent) {
-                                        breedingStatString = "None";
-                                    }
-                                });
-
 
                                 onLongPressAddBird(latLongPress, birdBreed, birdAge, birdQuantity, birdNotes, breedingStatString);
 
@@ -328,8 +296,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
 
                 AlertDialog dialog = adb.create();
-
                 dialog.show();
+
+                // create spinner with data from array
+                birdBreedingSpinner = (Spinner) dialog.findViewById(R.id.birdBreeding);
+
+                if (birdBreedingSpinner != null){
+                    // create array adapter for spinner
+                    ArrayAdapter<CharSequence> breedingStatusAdapter =
+                            ArrayAdapter.createFromResource(currentContext,
+                                    R.array.breeding_status,
+                                    android.R.layout.simple_spinner_item);
+
+                    // set arrayAdapter
+                    birdBreedingSpinner.setAdapter(breedingStatusAdapter);
+
+                    birdBreedingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            breedingStatString = parent.getItemAtPosition(position).toString();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                            breedingStatString = "None";
+                        }
+                    });
+                }
             }
         });
 
@@ -349,10 +342,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // details
         String notesS = notes.getText().toString();
 
-        // breeding status
-
-        String birdInfo = String.valueOf(quantityI) + " " + breedS;
-        String birdSnip = "Seen at " + press.latitude + " " + press.longitude;
+        String birdInfo = String.valueOf(quantityI) + " " + breedS + "; "
+                + "Breeding status: " + breeding;
+        String birdSnip = "Seen at " + press.latitude + " " + press.longitude ;
 
         //add list of Strings for bird info
         birdPositions.add(birdInfo);
