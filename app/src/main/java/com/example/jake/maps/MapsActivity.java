@@ -306,7 +306,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     ArrayAdapter<CharSequence> breedingStatusAdapter =
                             ArrayAdapter.createFromResource(currentContext,
                                     R.array.breeding_status,
-                                    android.R.layout.simple_spinner_item);
+                                    R.layout.breeding_status_spinner);
 
                     // set arrayAdapter
                     birdBreedingSpinner.setAdapter(breedingStatusAdapter);
@@ -319,7 +319,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         @Override
                         public void onNothingSelected(AdapterView<?> parent) {
-                            breedingStatString = "None";
+                            // default select first if none selected
+                            breedingStatString = parent.getItemAtPosition(0).toString();
                         }
                     });
                 }

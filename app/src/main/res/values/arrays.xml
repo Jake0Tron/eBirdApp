@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="breeding_status">
-        <item>ABC</item>
-        <item>ABC</item>
-        <item>ABC</item>
-        <item>ABC</item>
-        <item>ABC</item>
+        <!--http://help.ebird.org/customer/portal/articles/1006850-breeding-codes-behavior-codes -->
+        <item>[NY] Confirmed - Nest with Young</item>
+        <item>[NE] Confirmed - Nest with Eggs</item>
+        <item>[FS] Confirmed-Carrying Fecal Sac</item>
+        <item>[FY] Confirmed-Feeding Young</item>
+        <item>[FL] Confirmed-Recently Fledged young</item>
+        <item>[CF] Confirmed-Carrying Food</item>
+        <item>[ON] Confirmed-Occupied Nest</item>
+        <item>[UN] Confirmed-Used Nest</item>
+        <item>[DD] Confirmed-Distraction Display</item>
+        <item>[NB] Confirmed/Probable-Nest Building</item>
+        <item>[CN] Confirmed/Probable-Carrying Nesting Material</item>
+        <item>[PE] Probable-Brood Patch and Physiological Evidence</item>
+        <item>[B] Probable-Woodpecker/Wren Nest Building</item>
+        <item>[A] Probable-Agitated behavior</item>
+        <item>[N] Probable-Visiting probable Nest site</item>
+        <item>[C] Probable-Courtship, Display or Copulation</item>
+        <item>[T] Probable-Territory held for 7+ days</item>
+        <item>[P] Probable-Pair in suitable habitat</item>
+        <item>[M] Probable-Multiple (7+) singing males</item>
+        <item>[S7] Probable-Singing Male Present 7+ Days</item>
+        <item>[S] Possible-Singing male</item>
+        <item>[H] Possible-In appropriate habitat</item>
+        <item>[F] Flyover - Flying over only</item>
     </string-array>
 
 </resources>
