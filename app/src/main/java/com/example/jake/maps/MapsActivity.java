@@ -264,11 +264,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
                 LayoutInflater inflater = MapsActivity.this.getLayoutInflater();
 
-                // TODO: /strings this
                 adb
                     .setView(inflater.inflate(R.layout.alert_dialog_add_bird_data, null))//  set custom view
-                    .setTitle("Bird Sighting Info");// set title
-                //adb.show();
+                    .setTitle(R.string.bird_sighting_info_title);// set title
 
                 adb
                         //.setMessage("Enter Data here...")
@@ -281,7 +279,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 birdAge = (EditText) d.findViewById(R.id.birdAge);
                                 birdQuantity = (EditText) d.findViewById(R.id.birdQuantity);
                                 birdNotes = (EditText) d.findViewById(R.id.birdNotes);
-                                // TODO: Move this before button click
 
                                 onLongPressAddBird(latLongPress, birdBreed, birdAge, birdQuantity, birdNotes, breedingStatString);
 
