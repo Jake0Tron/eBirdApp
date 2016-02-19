@@ -30,10 +30,9 @@
         android:text="@string/main_menu_sightings_near_me"
         android:id="@+id/main_menu_sightings_near_me"
         android:layout_gravity="center_horizontal"
-        android:onClick=""
+        android:onClick="startSightingsNearMeActivity"
         android:layout_margin="10dp"
         android:padding="15dp" />
-    <!-- TODO: set up onClick to start sighting near me map view-->
 
 
 </LinearLayout>

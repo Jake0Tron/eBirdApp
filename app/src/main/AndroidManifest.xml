@@ -10,10 +10,9 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!--TODO: add actionview for indexing -->
+    <!-- TODO: add actionview for indexing -->
     <application
         android:allowBackup="true"
         android:debuggable="true"
@@ -37,18 +36,17 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-
-        </activity>
+            android:label="@string/title_activity_maps"></activity>
         <activity android:name=".MainMenuActivity">
             <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-
-
+        <activity
+            android:name=".SightingsNearMeActivity"
+            android:label="@string/title_activity_sightings_near_me"></activity>
     </application>
 
 </manifest>

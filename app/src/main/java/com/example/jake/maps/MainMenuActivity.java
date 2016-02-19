@@ -17,4 +17,9 @@ public class MainMenuActivity extends AppCompatActivity {
         Intent i = new Intent(this, MapsActivity.class);
         startActivity(i);
     }
+
+    public void startSightingsNearMeActivity(View v){
+        Intent i = new Intent(this, SightingsNearMeActivity.class);
+        startActivity(i);
+    }
 }

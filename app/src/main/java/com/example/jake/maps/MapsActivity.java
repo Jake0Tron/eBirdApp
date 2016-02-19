@@ -45,8 +45,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker myMark;
     private MarkerOptions myMarker;
 
-    private Circle myCirc;
-    private CircleOptions circle;
+    private Circle myCircle;
+    private CircleOptions circleOptions;
 
     private LocationManager locationManager;
     private String provider;
@@ -54,15 +54,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng myLocation;
     private float lat, lon;
 
+    // idle camera position
+    private CameraPosition campos;
+
     private int maxZoom, minZoom, defZoom, tiltValue;
 
     private float radiusValue;
+
     private TextView radiusValueView;
 
     private SeekBar radiusBar;
-
-    // idle camera position
-    private CameraPosition campos;
 
     // list of bird positions
     ArrayList<String> birdPositions;
@@ -121,16 +122,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     radiusValue = progress;
                     String radV = String.valueOf(progress);
                     radiusValueView.setText(radV + " m");
-                    circle = new CircleOptions()
+                    circleOptions = new CircleOptions()
                             .center(myLocation)
                             .strokeWidth(1.5f)
                             .radius(radiusValue);
                     //.fillColor(Color.argb(100,0,180,220))
                     //
                     //.strokeColor(Color.argb(180,0,140,200));
-                    if (myCirc != null) {
-                        myCirc.remove();
-                        myCirc = mMap.addCircle(circle);
+                    if (myCircle != null) {
+                        myCircle.remove();
+                        myCircle = mMap.addCircle(circleOptions);
                     }
 
                     myMark.remove();
@@ -171,7 +172,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         myMarker = new MarkerOptions()
                 .position(myLocation)
                 .title("My Location: " + lat + " + " + lon);
@@ -180,11 +180,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.myLocation = new LatLng(lat, lon);
         //Circle RADIUS
         //handle radius changes
-        this.circle = new CircleOptions()
+        this.circleOptions = new CircleOptions()
                 .center(myLocation)
                 .strokeWidth(1.5f)
                 .radius(radiusValue);
-        myCirc = mMap.addCircle(circle);
+        myCircle = mMap.addCircle(circleOptions);
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
@@ -192,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .tilt(tiltValue)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//       circle = new CircleOptions()
+//       circleOptions = new CircleOptions()
 //                            .center(myLocation)
 //                            .strokeWidth(1.5f)
 //                            .radius(radiusValue);
@@ -201,7 +201,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                .strokeWidth(5f)
 //                .strokeColor(Color.argb(180,0,140,200));
 //        */
-//        mMap.addCircle(circle);
+//        mMap.addCircle(circleOptions);
 
         // handle camera change
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
@@ -374,7 +374,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationManager.removeUpdates(this);
     }
 
-    // LOCATION LISTRNER
+    // LOCATION LISTENER
 
     @Override
     public void onLocationChanged(Location location) {

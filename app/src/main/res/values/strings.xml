@@ -19,5 +19,10 @@
     <string name="bird_data_quantity">Quantity</string>
     <string name="bird_data_notes">Notes...</string>
 
+    <!-- Sightings near me -->
+    <string name="title_activity_sightings_near_me">Sightings Near Me Map</string>
+    <string name="near_me_radius">Radius (km):</string>
+    <string name="near_me_days_prior">Days Prior:</string>
+    <string name="near_me_submit">GO!</string>
 
 </resources>
