@@ -76,7 +76,6 @@ public class SightingsNearMeActivity
     ArrayList<MarkerOptions> resultList;
     ArrayList<MarkerOptions> matchingMarkers;
 
-
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +214,17 @@ public class SightingsNearMeActivity
 
             }// end onCameraChange
         });// end onCameraChangeListener
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                //TODO: add alertdialog with spinner to handle multiple birds
+
+                return false;
+            }
+        });
+
     }
 
     // OnSubmit
