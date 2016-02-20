@@ -74,6 +74,8 @@ public class SightingsNearMeActivity
     HttpAsyncTask http;
     // list of results from request
     ArrayList<MarkerOptions> resultList;
+    ArrayList<MarkerOptions> matchingMarkers;
+
 
     @SuppressLint("NewApi")
     @Override
@@ -98,6 +100,7 @@ public class SightingsNearMeActivity
         this.minZoom = 9;  // far
         this.radiusValue = 5;
         this.daysPriorValue = 4;
+
         // get number pickers
         daysPriorPicker = (NumberPicker) findViewById(R.id.daysPriorPicker);
         daysPriorPicker.setMinValue(1);
@@ -121,13 +124,12 @@ public class SightingsNearMeActivity
                 //handle radius changes
                 myCircle.remove();
 
-                circleOptions = new CircleOptions()
-                        .center(myLocation)
-                        .strokeWidth(1.5f)
-                        .radius((radiusValue * 1000));
-                myCircle = mMap.addCircle(circleOptions);
+                drawViewRadius();
             }
         });
+
+        resultList = new ArrayList<MarkerOptions>();
+        matchingMarkers = new ArrayList<MarkerOptions>();
 
         this.http = new HttpAsyncTask();
         this.http.delegate = this;
@@ -153,19 +155,9 @@ public class SightingsNearMeActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        myMarkerOptions = new MarkerOptions()
-                .position(myLocation)
-                .title("My Location: " + lat + " + " + lon);
-        myMarker = mMap.addMarker(myMarkerOptions);
-
         this.myLocation = new LatLng(lat, lon);
-        //Circle RADIUS
-        //handle radius changes
-        this.circleOptions = new CircleOptions()
-                .center(myLocation)
-                .strokeWidth(1.5f)
-                .radius((radiusValue * 1000));
-        myCircle = mMap.addCircle(circleOptions);
+        drawMyLocation();
+        drawViewRadius();
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLocation)      // Sets the center of the map to Mountain View
@@ -242,23 +234,6 @@ public class SightingsNearMeActivity
     public void processFinish(JSONArray result){
         //Log.d(TAG, result.toString());
 
-        // remove previous markers
-        mMap.clear();
-
-        // re-add my position
-        myMarkerOptions = new MarkerOptions()
-                .position(myLocation)
-                .title("My Location: " + lat + " + " + lon);
-        myMarker = mMap.addMarker(myMarkerOptions);
-        // re add radius
-        this.circleOptions = new CircleOptions()
-                .center(myLocation)
-                .strokeWidth(1.5f)
-                .radius((radiusValue * 1000));
-        myCircle = mMap.addCircle(circleOptions);
-
-        resultList = new ArrayList<>();
-
         /*
             [{
                 "locID": "L99381",              0
@@ -289,13 +264,14 @@ public class SightingsNearMeActivity
                 Log.d("JSONreturn" , birdComName);
 
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
-                String markSnip = birdSciName + " > " + dateSeen + " ";
+                String markSnip = birdSciName + " > " + dateSeen + " " + birdLat + " " + birdLong;
 
                 LatLng birdPos = new LatLng(birdLat, birdLong);
 
                 MarkerOptions birdMarker = new MarkerOptions();
-                birdMarker.draggable(false).
-                        icon(BitmapDescriptorFactory
+                birdMarker
+                        .draggable(false)
+                        .icon(BitmapDescriptorFactory
                                 .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                         .alpha(0.7f)
                         .title(markTitle)
@@ -308,13 +284,48 @@ public class SightingsNearMeActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        // remove previous markers
+        mMap.clear();
+        drawMyLocation();
+        drawViewRadius();
+        drawResultList();
+    }
+
+    public void drawMyLocation(){
+        // re-add my position
+        myMarkerOptions = new MarkerOptions()
+                .position(myLocation)
+                .title("My Location: " + lat + " + " + lon);
+        myMarker = mMap.addMarker(myMarkerOptions);
+    }
+
+    public void drawViewRadius(){
+        //Circle RADIUS
+        //handle radius changes
+        this.circleOptions = new CircleOptions()
+                .center(myLocation)
+                .strokeWidth(1.5f)
+                .radius((radiusValue * 1000));
+        myCircle = mMap.addCircle(circleOptions);
+    }
+
+    public void drawResultList(){
         // if no errors occured
         if (resultList.size() > 0){
-            Log.d("ADDING MARKERS", "SIZE > 0");
             for (int i=0; i<resultList.size(); i++) {
                 // drop markers on the map
                 mMap.addMarker(resultList.get(i));
             }
+        }
+    }
+
+    public void drawFannedMarkerList(ArrayList<MarkerOptions> markerlist){
+        // add remaining markers (fanned)
+        for (int i=0; i < markerlist.size(); i++) {
+            markerlist.get(i)
+                    .flat(true)
+                    .rotation((float) i * (360 / markerlist.size()));
+            mMap.addMarker(markerlist.get(i));
         }
     }
 

@@ -10,7 +10,6 @@ public class URLBuilder {
 
     private String url;
 
-    //
     // get the URL for nearby sightings based on:
     //  @param  Lat/lng
     //  @param  Distance from location (radius in km)
