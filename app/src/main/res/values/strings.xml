@@ -12,7 +12,7 @@
     <string name="map_radius_title">View Radius</string>
     <string name="map_radius_value">0km</string>
 
-    <!-- Sighting Alert-->
+    <!-- Add Sighting Alert-->
     <string name="bird_sighting_info_title">Bird Sighting Info</string>
     <string name="bird_data_name">Bird Species</string>
     <string name="bird_data_age">Bird Age</string>
@@ -24,5 +24,7 @@
     <string name="near_me_radius">Radius (km):</string>
     <string name="near_me_days_prior">Days Prior:</string>
     <string name="near_me_submit">GO!</string>
+    <!-- Sighting near me alert-->
+    <string name="near_me_alert_title">Birds Near Me: </string>
 
 </resources>

@@ -50,10 +50,10 @@
             android:layout_toEndOf="@+id/radiusText" />
 
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/near_me_submit"
+            android:src="@drawable/image_preview_small"
             android:id="@+id/near_me_submit"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
@@ -61,7 +61,8 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_toRightOf="@+id/radiusPicker"
-            android:layout_toEndOf="@+id/radiusPicker" />
+            android:layout_toEndOf="@+id/radiusPicker"
+            android:cropToPadding="false" />
     </RelativeLayout>
 
 
