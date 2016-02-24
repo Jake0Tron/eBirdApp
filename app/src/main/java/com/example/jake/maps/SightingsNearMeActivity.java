@@ -246,77 +246,80 @@ public class SightingsNearMeActivity
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                Log.d(TAG, "MARKER SELECT : " + matchingMarkers.size());
 
-                matchingBirdTitles.clear();
-                matchingBirdSubTitles.clear();
+                //if (!marker.equals(myMarker)) {
+                // Create list of data of all birds at this marker location
 
-                if (!marker.equals(myMarker)) {
-                    // Create list of data of all birds at this marker location
+                matchingBirdTitles = new ArrayList<String>();
 
-                    for (int i = 0; i < matchingMarkers.size(); i++) {
-                        double markerLat = matchingMarkers.get(i).getPosition().latitude;
-                        double markerLon = matchingMarkers.get(i).getPosition().longitude;
+                for (int i = 0; i < resultList.size(); i++) {
 
-                        double clickLat = marker.getPosition().latitude;
-                        double clickLon = marker.getPosition().longitude;
+                    double markerLat = resultList.get(i).getPosition().latitude;
+                    double markerLon = resultList.get(i).getPosition().longitude;
 
-                        if (markerLat == clickLat && markerLon == clickLon) {
-                            String matchingBirdDataTitle = matchingMarkers.get(i).getTitle();
-                            String matchingBirdDataSubTitle = matchingMarkers.get(i).getSnippet();
-                            matchingBirdTitles.add(matchingBirdDataTitle);
-                            matchingBirdSubTitles.add(matchingBirdDataSubTitle);
-                        }
-                    }
+                    double clickLat = marker.getPosition().latitude;
+                    double clickLon = marker.getPosition().longitude;
 
-                    if (matchingBirdTitles.size() > 0) {
-                        Log.d(TAG, "Multiple birds at marker");
-
-                        // add alertdialog with spinner to handle multiple birds
-                        LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
-                        AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
-                        String titleString = getResources().getString(R.string.near_me_alert_title) + " " +
-                                String.valueOf(matchingBirdTitles.size());
-
-                        adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
-                                .setTitle(titleString)
-                                .setNegativeButton("Close", new DialogInterface.OnClickListener() {    //TODO: Strings this
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                        // build AlertDialog
-                        AlertDialog dialog = adb.create();
-                        dialog.show();
-
-                        // set spinner view
-                        multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
-
-                        if (multiBirdSpinner != null) {
-                            TextSubTextAdapter adapter
-                                    = new TextSubTextAdapter(SightingsNearMeActivity.this,
-                                    matchingBirdTitles,
-                                    matchingBirdSubTitles);
-                            multiBirdSpinner.setAdapter(adapter);
-                            multiBirdSpinner.setSelection(0, true);
-                            multiBirdSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                @Override
-                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                                }
-
-                                @Override
-                                public void onNothingSelected(AdapterView<?> parent) {
-
-                                }
-                            });
-                        } else {
-                            Log.d(TAG, "SPINNER IS NULL");
-                        }
+                    if ((markerLat == clickLat) && (markerLon == clickLon)) {
+                        Log.d(TAG, "MATCH!");
+                        String matchingBirdDataTitle = resultList.get(i).getTitle();
+                        String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
+                        matchingBirdTitles.add(matchingBirdDataTitle);
+                        matchingBirdSubTitles.add(matchingBirdDataSubTitle);
+                    } else {
+                        Log.d(TAG, "NO MATCH!");
                     }
                 }
 
+                if (matchingBirdTitles.size() > 0) {
+                    Log.d(TAG, "Multiple birds at marker");
+
+                    // add alertdialog with spinner to handle multiple birds
+                    LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
+                    AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
+                    String titleString = getResources().getString(R.string.near_me_alert_title) + " " +
+                            String.valueOf(matchingBirdTitles.size());
+
+                    adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
+                            .setTitle(titleString)
+                            .setNegativeButton("Close", new DialogInterface.OnClickListener() {    //TODO: Strings this
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //matchingBirdTitles = new ArrayList<String>();
+                                    dialog.cancel();
+                                }
+                            });
+
+                    // build AlertDialog
+                    AlertDialog dialog = adb.create();
+                    dialog.show();
+
+                    // set spinner view
+                    multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
+
+                    if (multiBirdSpinner != null) {
+                        TextSubTextAdapter adapter
+                                = new TextSubTextAdapter(SightingsNearMeActivity.this,
+                                matchingBirdTitles,
+                                matchingBirdSubTitles);
+                        multiBirdSpinner.setAdapter(adapter);
+                        multiBirdSpinner.setSelection(0, true);
+                        multiBirdSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+                    } else {
+                        Log.d(TAG, "SPINNER IS NULL");
+                    }
+                }
                 return true;
             }
         });
@@ -326,7 +329,7 @@ public class SightingsNearMeActivity
 
     public void getBirdsNearMe() {
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
-        Log.d(TAG, radiusValue + " " + daysPriorValue + " " + myLatLng);
+        //Log.d(TAG, radiusValue + " " + daysPriorValue + " " + myLatLng);
         //submit http request
         this.http = new HttpAsyncTask();
         this.http.setDelegate(this);
@@ -375,9 +378,9 @@ public class SightingsNearMeActivity
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
                 String markSnip = birdSciName + " > " + dateSeen + " " + birdLat + " " + birdLong;
 
-                String matchingBirds = birdCount + " " + birdComName + " " + dateSeen;
+                //String matchingBirds = birdCount + " " + birdComName + " " + dateSeen;
 
-                matchingBirdTitles.add(matchingBirds);
+                //matchingBirdTitles.add(matchingBirds);
 
                 LatLng birdPos = new LatLng(birdLat, birdLong);
 

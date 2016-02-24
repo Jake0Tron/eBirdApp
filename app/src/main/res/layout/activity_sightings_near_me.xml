@@ -53,7 +53,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/image_preview_small"
+            android:src="@drawable/image_preview_square"
             android:id="@+id/near_me_submit"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
