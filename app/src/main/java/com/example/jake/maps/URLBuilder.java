@@ -43,7 +43,7 @@ public class URLBuilder {
         //days prior
         this.url += "&back=" + String.valueOf(daysPrior);
         // request JSON
-        this.url += "&locale=en_US&fmt=json";
+        this.url += "&hotspot=false&includeProvisional=true&locale=en_US&fmt=json";
         Log.d("URLvalue", this.url);
 
         return this.url;

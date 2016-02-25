@@ -92,7 +92,6 @@ public class SightingsNearMeActivity
     // Spinner to handle multiple birds in the alertdialog
     Spinner multiBirdSpinner;
 
-
     Context currentContext;
 
     @SuppressLint("NewApi")
@@ -184,7 +183,7 @@ public class SightingsNearMeActivity
 
         this.myLatLng = new LatLng(lat, lon);
         drawMyLocation();
-        drawViewRadius();
+        //drawViewRadius();
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLatLng)
@@ -319,8 +318,6 @@ public class SightingsNearMeActivity
 
                             }
                         });
-                    } else {
-                        //Log.d(TAG, "SPINNER IS NULL");
                     }
                 }
                 return true;
@@ -330,36 +327,15 @@ public class SightingsNearMeActivity
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-
+                // TODO: set myLocation marker to longClick Location and zoom into position selected
             }
         });// end mapLongClickListener
-
-        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDrag(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-
-            }
-        });// end on Marker Drag
-
 
         getBirdsNearMe();
     }
 
     public void getBirdsNearMe() {
-        Log.d(TAG, String.valueOf(radiusValue));
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
-        //Log.d(TAG, radiusValue + " " + daysPriorValue + " " + myLatLng);
-        //submit http request
         this.http = new HttpAsyncTask();
         this.http.setDelegate(this);
         this.http.execute(url);
@@ -374,8 +350,13 @@ public class SightingsNearMeActivity
     @Override
     public void processFinish(JSONArray result) {
         Log.d(TAG, result.toString());
-        mMap.clear();
+
+        // There is something odd with how eBird filters their results via location and distance from it.
+        // after certain distances birds will be removed from the list for reasons I can't tell...
+        // Will have to look into this further.
+
         resultList.clear();
+        mMap.clear();
 
         /*
             [{
@@ -391,71 +372,80 @@ public class SightingsNearMeActivity
                 "comName": "Barn Swallow"       9
             }]
          */
-        Toast.makeText(this, result.length() + " sightings in this area", Toast.LENGTH_LONG).show();
-        int displayCount=0;
+        int displayCount = 0;
         try {
             for (int i = 0; i < result.length(); i++) {
                 JSONObject sightingJSON = result.getJSONObject(i);
                 Log.d(TAG, sightingJSON.toString());
                 // create a markeroptions to hold information about bird sighting
-                double birdLat=0.0;
+                double birdLat = 0.0;
+                double birdLong = 0.0;
+                String birdComName = "";
+                String birdSciName = "";
+                String locationName = "";
+                String dateSeen = "";
+                String birdCount = "";
+
+                //TODO: in-depth checking for each field for null
+
                 try {
                     birdLat = sightingJSON.getDouble("lat");
-                } catch (Exception e) {
-                    birdLat = 0.0;
+                } catch (JSONException e) {
                     Log.d(TAG, "BirdLat is null");
+                    birdLat = 0.0;
+                    e.printStackTrace();
                 }
 
-                double birdLong = 0.0;
                 try {
                     birdLong = sightingJSON.getDouble("lng");
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     Log.d(TAG, "BirdLng is null");
+                    birdLong = 0.0;
+                    e.printStackTrace();
                 }
 
-                String birdComName = "";
                 try {
                     birdComName = sightingJSON.getString("comName");
-                } catch (Exception e) {
-                    birdComName = "";
+                } catch (JSONException e) {
                     Log.d(TAG, " comName is null");
+                    birdComName = "";
+                    e.printStackTrace();
                 }
 
-                String birdSciName = "";
                 try {
                     birdSciName = sightingJSON.getString("sciName");
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     Log.d(TAG, birdComName + " sciName is null");
+                    birdSciName = "";
+                    e.printStackTrace();
                 }
 
-                String locationName = "";
                 try {
                     locationName = sightingJSON.getString("locName");
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     Log.d(TAG, birdComName + " locName is null");
+                    locationName = "";
+                    e.printStackTrace();
                 }
 
-                String dateSeen = "";
                 try {
                     dateSeen = sightingJSON.getString("obsDt");
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     Log.d(TAG, birdComName + " ObsDt is null");
+                    dateSeen = "";
+                    e.printStackTrace();
                 }
 
-                String birdCount = "";
                 try {
                     birdCount = String.valueOf(sightingJSON.getInt("howMany"));
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     Log.d(TAG, birdComName + " birdCount is null");
                     birdCount = "X";
+                    //e.printStackTrace();
                 }
 
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
                 String markSnip = birdSciName + " > " + dateSeen + " " + birdLat + " " + birdLong;
-
-                //String matchingBirds = birdCount + " " + birdComName + " " + dateSeen;
-
-                //matchingBirdTitles.add(matchingBirds);
 
                 LatLng birdPos = new LatLng(birdLat, birdLong);
 
@@ -469,15 +459,15 @@ public class SightingsNearMeActivity
                         .snippet(markSnip)
                         .position(birdPos)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.bird_icon_small));
-                // add to list
+
                 resultList.add(birdMarker);
+
                 displayCount++;
             }
-            Log.d(TAG, String.valueOf(displayCount) + " displayed");
-        } catch (JSONException e) {
+            Toast.makeText(this, displayCount + " sightings in this area : " + resultList.size(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        // remove previous markers
 
         drawMyLocation();
         drawViewRadius();
@@ -491,10 +481,10 @@ public class SightingsNearMeActivity
         myMarkerOptions = new MarkerOptions()
                 .position(myLatLng)
                 .title("My Location: " + lat + " + " + lon)
-                //.flat(true)
-                //.rotation(myLocation.getBearing())
-                //.anchor(0.5f, 0.5f)
-                .draggable(true);
+                        //.flat(true)
+                        //.rotation(myLocation.getBearing())
+                        //.anchor(0.5f, 0.5f)
+                .draggable(false);
         //.icon(BitmapDescriptorFactory.fromResource(R.drawable.image_preview));
         myMarker = mMap.addMarker(myMarkerOptions);
     }
