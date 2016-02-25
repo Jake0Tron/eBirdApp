@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">eBird App</string>
-    <string name="title_activity_maps">eBird App</string>
+    <string name="app_name">Birds Near You</string>
+    <string name="title_activity_maps">Submit Sighting</string>
 
     <!-- Main Menu-->
     <!-- <string name="main_menu_"></string> -->
-    <string name="main_menu_title">eBird Sighting App</string>
+    <string name="main_menu_title">Sightings Near Me</string>
     <string name="main_menu_record_sighting">Record Sightings</string>
     <string name="main_menu_sightings_near_me">Sightings Near Me</string>
 
