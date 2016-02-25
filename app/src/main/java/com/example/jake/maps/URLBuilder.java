@@ -1,5 +1,7 @@
 package com.example.jake.maps;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -41,7 +43,9 @@ public class URLBuilder {
         //days prior
         this.url += "&back=" + String.valueOf(daysPrior);
         // request JSON
-        this.url += "&fmt=json";
+        this.url += "&locale=en_US&fmt=json";
+        Log.d("URLvalue", this.url);
+
         return this.url;
     }
 

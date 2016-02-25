@@ -204,10 +204,6 @@ public class SightingsNearMeActivity
 
                 drawMyLocation();
 
-
-                //myMarkerOptions = new MarkerOptions()
-                  //      .position(myLatLng)
-                    //    .title("My Location: " + lat + " + " + lon);
                 // Camera Limits
                 if (cameraPosition.zoom >= maxZoom) {
                     CameraPosition camPos = new CameraPosition.Builder()
@@ -267,7 +263,7 @@ public class SightingsNearMeActivity
                     String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
 
                     Log.d(TAG, matchingBirdDataTitle + " " + matchingBirdDataSubTitle);
-                    Log.d(TAG,  markerLat + " " +markerLon);
+                    Log.d(TAG, markerLat + " " + markerLon);
 
                     if ((markerLat == clickLat) && (markerLon == clickLon)) {
                         //Log.d(TAG, "MATCH!");
@@ -334,8 +330,7 @@ public class SightingsNearMeActivity
     }
 
     public void getBirdsNearMe() {
-        mMap.clear();
-        resultList.clear();
+        Log.d(TAG, String.valueOf(radiusValue));
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
         //Log.d(TAG, radiusValue + " " + daysPriorValue + " " + myLatLng);
         //submit http request
@@ -352,7 +347,9 @@ public class SightingsNearMeActivity
     // when data is returned handle it here
     @Override
     public void processFinish(JSONArray result) {
-        //Log.d(TAG, result.toString());
+        Log.d(TAG, result.toString());
+        mMap.clear();
+        resultList.clear();
 
         /*
             [{
@@ -371,7 +368,7 @@ public class SightingsNearMeActivity
         try {
             for (int i = 0; i < result.length(); i++) {
                 JSONObject sightingJSON = result.getJSONObject(i);
-
+                Log.d(TAG, sightingJSON.toString());
                 // create a markeroptions to hold information about bird sighting
                 double birdLat = sightingJSON.getDouble("lat");
                 double birdLong = sightingJSON.getDouble("lng");
@@ -379,8 +376,12 @@ public class SightingsNearMeActivity
                 String birdSciName = sightingJSON.getString("sciName");
                 String locationName = sightingJSON.getString("locName");
                 String dateSeen = sightingJSON.getString("obsDt");
-                int birdCount = sightingJSON.getInt("howMany");
-
+                int birdCount;
+                try {
+                 birdCount = sightingJSON.getInt("howMany");
+                }catch (Exception e){
+                    birdCount = 1;
+                }
                 Log.d("JSONreturn", birdComName);
 
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
