@@ -111,6 +111,7 @@ public class SightingsNearMeActivity
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
 
+        myLocation = new Location(provider);
         myLocation = locationManager.getLastKnownLocation(provider);
 
         this.currentContext = this;
@@ -246,12 +247,13 @@ public class SightingsNearMeActivity
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Log.d(TAG, "MARKER SELECT : " + matchingMarkers.size());
+                //Log.d(TAG, "MARKER SELECT : " + matchingMarkers.size());
 
                 //if (!marker.equals(myMarker)) {
                 // Create list of data of all birds at this marker location
 
-                matchingBirdTitles = new ArrayList<String>();
+                matchingBirdTitles.clear();
+                matchingBirdSubTitles.clear();
 
                 for (int i = 0; i < resultList.size(); i++) {
 
@@ -261,14 +263,18 @@ public class SightingsNearMeActivity
                     double clickLat = marker.getPosition().latitude;
                     double clickLon = marker.getPosition().longitude;
 
+                    String matchingBirdDataTitle = resultList.get(i).getTitle();
+                    String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
+
+                    Log.d(TAG, matchingBirdDataTitle + " " + matchingBirdDataSubTitle);
+                    Log.d(TAG,  markerLat + " " +markerLon);
+
                     if ((markerLat == clickLat) && (markerLon == clickLon)) {
-                        Log.d(TAG, "MATCH!");
-                        String matchingBirdDataTitle = resultList.get(i).getTitle();
-                        String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
+                        //Log.d(TAG, "MATCH!");
                         matchingBirdTitles.add(matchingBirdDataTitle);
                         matchingBirdSubTitles.add(matchingBirdDataSubTitle);
                     } else {
-                        Log.d(TAG, "NO MATCH!");
+                        //Log.d(TAG, "NO MATCH!");
                     }
                 }
 
@@ -317,7 +323,7 @@ public class SightingsNearMeActivity
                             }
                         });
                     } else {
-                        Log.d(TAG, "SPINNER IS NULL");
+                        //Log.d(TAG, "SPINNER IS NULL");
                     }
                 }
                 return true;
@@ -328,6 +334,8 @@ public class SightingsNearMeActivity
     }
 
     public void getBirdsNearMe() {
+        mMap.clear();
+        resultList.clear();
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
         //Log.d(TAG, radiusValue + " " + daysPriorValue + " " + myLatLng);
         //submit http request
@@ -402,7 +410,7 @@ public class SightingsNearMeActivity
             e.printStackTrace();
         }
         // remove previous markers
-        mMap.clear();
+
         drawMyLocation();
         drawViewRadius();
         drawResultList();

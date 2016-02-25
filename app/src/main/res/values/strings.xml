@@ -25,6 +25,6 @@
     <string name="near_me_days_prior">Days Prior:</string>
     <string name="near_me_submit">GO!</string>
     <!-- Sighting near me alert-->
-    <string name="near_me_alert_title">Birds Near Me: </string>
+    <string name="near_me_alert_title">Bird Species Near Me: </string>
 
 </resources>
