@@ -119,7 +119,7 @@ public class SightingsNearMeActivity
         // camera zoom values
         this.maxZoom = 30;  // close
         this.defZoom = 12;
-        this.minZoom = 9;  // far
+        this.minZoom = 4;  // far
         this.radiusValue = 5;
         this.daysPriorValue = 25;
 
@@ -224,7 +224,7 @@ public class SightingsNearMeActivity
                             .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-                   // myMarker.remove();
+                    // myMarker.remove();
                     //myMarker = mMap.addMarker(myMarkerOptions);
                 } else {
                     // lock camera on user
@@ -240,6 +240,7 @@ public class SightingsNearMeActivity
 
             }// end onCameraChange
         });// end onCameraChangeListener
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -324,7 +325,32 @@ public class SightingsNearMeActivity
                 }
                 return true;
             }
-        });
+        });// end markerclickListener
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+
+            }
+        });// end mapLongClickListener
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+            }
+        });// end on Marker Drag
+
 
         getBirdsNearMe();
     }
@@ -365,24 +391,64 @@ public class SightingsNearMeActivity
                 "comName": "Barn Swallow"       9
             }]
          */
+        Toast.makeText(this, result.length() + " sightings in this area", Toast.LENGTH_LONG).show();
+        int displayCount=0;
         try {
             for (int i = 0; i < result.length(); i++) {
                 JSONObject sightingJSON = result.getJSONObject(i);
                 Log.d(TAG, sightingJSON.toString());
                 // create a markeroptions to hold information about bird sighting
-                double birdLat = sightingJSON.getDouble("lat");
-                double birdLong = sightingJSON.getDouble("lng");
-                String birdComName = sightingJSON.getString("comName");
-                String birdSciName = sightingJSON.getString("sciName");
-                String locationName = sightingJSON.getString("locName");
-                String dateSeen = sightingJSON.getString("obsDt");
-                int birdCount;
+                double birdLat=0.0;
                 try {
-                 birdCount = sightingJSON.getInt("howMany");
-                }catch (Exception e){
-                    birdCount = 1;
+                    birdLat = sightingJSON.getDouble("lat");
+                } catch (Exception e) {
+                    birdLat = 0.0;
+                    Log.d(TAG, "BirdLat is null");
                 }
-                Log.d("JSONreturn", birdComName);
+
+                double birdLong = 0.0;
+                try {
+                    birdLong = sightingJSON.getDouble("lng");
+                } catch (Exception e) {
+                    Log.d(TAG, "BirdLng is null");
+                }
+
+                String birdComName = "";
+                try {
+                    birdComName = sightingJSON.getString("comName");
+                } catch (Exception e) {
+                    birdComName = "";
+                    Log.d(TAG, " comName is null");
+                }
+
+                String birdSciName = "";
+                try {
+                    birdSciName = sightingJSON.getString("sciName");
+                } catch (Exception e) {
+                    Log.d(TAG, birdComName + " sciName is null");
+                }
+
+                String locationName = "";
+                try {
+                    locationName = sightingJSON.getString("locName");
+                } catch (Exception e) {
+                    Log.d(TAG, birdComName + " locName is null");
+                }
+
+                String dateSeen = "";
+                try {
+                    dateSeen = sightingJSON.getString("obsDt");
+                } catch (Exception e) {
+                    Log.d(TAG, birdComName + " ObsDt is null");
+                }
+
+                String birdCount = "";
+                try {
+                    birdCount = String.valueOf(sightingJSON.getInt("howMany"));
+                } catch (Exception e) {
+                    Log.d(TAG, birdComName + " birdCount is null");
+                    birdCount = "X";
+                }
 
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
                 String markSnip = birdSciName + " > " + dateSeen + " " + birdLat + " " + birdLong;
@@ -405,8 +471,9 @@ public class SightingsNearMeActivity
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.bird_icon_small));
                 // add to list
                 resultList.add(birdMarker);
-
+                displayCount++;
             }
+            Log.d(TAG, String.valueOf(displayCount) + " displayed");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -424,11 +491,11 @@ public class SightingsNearMeActivity
         myMarkerOptions = new MarkerOptions()
                 .position(myLatLng)
                 .title("My Location: " + lat + " + " + lon)
-                .flat(true)
-                .rotation(myLocation.getBearing())
-                .anchor(0.5f,0.5f)
-                .draggable(false);
-                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.image_preview));
+                //.flat(true)
+                //.rotation(myLocation.getBearing())
+                //.anchor(0.5f, 0.5f)
+                .draggable(true);
+        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.image_preview));
         myMarker = mMap.addMarker(myMarkerOptions);
     }
 
