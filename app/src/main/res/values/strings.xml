@@ -7,6 +7,7 @@
     <string name="main_menu_title">Sightings Near Me</string>
     <string name="main_menu_record_sighting">Record Sightings</string>
     <string name="main_menu_sightings_near_me">Find Sightings Near Me</string>
+    <string name="main_menu_copyright">&#169; Jake Deacon 2016</string>
 
     <!--Sighting Map -->
     <string name="map_radius_title">View Radius</string>
@@ -24,6 +25,7 @@
     <string name="near_me_radius">Radius (km):</string>
     <string name="near_me_days_prior">Days Prior:</string>
     <string name="near_me_submit">GO!</string>
+    <string name="near_me_reset">Reset Location</string>
     <!-- Sighting near me alert-->
     <string name="near_me_alert_title">Bird Species Near Me: </string>
 

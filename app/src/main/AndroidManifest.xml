@@ -20,7 +20,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/birdsNearYou"
-        tools:ignore="HardcodedDebugMode">
+        tools:ignore="HardcodedDebugMode"
+        android:largeHeap="true">
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

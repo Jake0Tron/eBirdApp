@@ -27,4 +27,14 @@
         <item>[F] Flyover - Flying over only</item>
     </string-array>
 
+    <array name="img_id_array">
+        <item>@drawable/bird1</item>
+        <item>@drawable/bird2</item>
+        <item>@drawable/bird3</item>
+        <item>@drawable/bird4</item>
+        <item>@drawable/bird5</item>
+        <item>@drawable/bird6</item>
+    </array>
+
+
 </resources>

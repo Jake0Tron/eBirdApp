@@ -131,6 +131,7 @@ public class SightingsNearMeActivity
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 daysPriorValue = newVal;
+                getBirdsNearMe();
             }
         });
 
@@ -144,8 +145,8 @@ public class SightingsNearMeActivity
                 radiusValue = newVal;
                 //handle radius changes
                 myCircle.remove();
-
                 drawViewRadius();
+                getBirdsNearMe();
             }
         });
 
@@ -328,6 +329,10 @@ public class SightingsNearMeActivity
             @Override
             public void onMapLongClick(LatLng latLng) {
                 // TODO: set myLocation marker to longClick Location and zoom into position selected
+
+                myLatLng = latLng;
+                getBirdsNearMe();
+                drawMyLocation();
             }
         });// end mapLongClickListener
 
@@ -341,9 +346,21 @@ public class SightingsNearMeActivity
         this.http.execute(url);
     }
 
-    // OnSubmit
-    public void sightingsNearMeSubmit(View v) {
+
+    public void resetLocation(View v) {
+        //TODO: fix this up
+
+        this.myLatLng = new LatLng(lat, lon);
+        myLocation = locationManager.getLastKnownLocation(provider);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(myLatLng)
+                .zoom(defZoom)
+                .tilt(tiltValue)
+                .build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         getBirdsNearMe();
+
     }
 
     // when data is returned handle it here
@@ -376,7 +393,7 @@ public class SightingsNearMeActivity
         try {
             for (int i = 0; i < result.length(); i++) {
                 JSONObject sightingJSON = result.getJSONObject(i);
-                Log.d(TAG, sightingJSON.toString());
+                //Log.d(TAG, sightingJSON.toString());
                 // create a markeroptions to hold information about bird sighting
                 double birdLat = 0.0;
                 double birdLong = 0.0;
@@ -462,7 +479,7 @@ public class SightingsNearMeActivity
 
                 displayCount++;
             }
-            Toast.makeText(this, displayCount + " sightings in this area : " + resultList.size(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, displayCount + " sightings in this area : " + resultList.size(), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -536,7 +553,6 @@ public class SightingsNearMeActivity
     public void onLocationChanged(Location location) {
         lat = (float) (location.getLatitude());
         lon = (float) (location.getLongitude());
-        this.myLatLng = new LatLng(lat, lon);
     }
 
     @Override

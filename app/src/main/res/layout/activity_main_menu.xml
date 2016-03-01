@@ -3,14 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context=".MainMenuActivity">
+    tools:context=".MainMenuActivity"
+    android:background="@drawable/gradient_bg">
 
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
+        android:id="@+id/main_menu_image"
         android:layout_gravity="center_horizontal"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:src="@drawable/bird_logo"
+        android:layout_above="@+id/main_menu_sightings_near_me" />
 
     <Button
         android:layout_width="wrap_content"
@@ -20,7 +23,17 @@
         android:layout_gravity="center_horizontal"
         android:onClick="startSightingsNearMeActivity"
         android:padding="25dp"
-        android:layout_centerVertical="true"
+        android:layout_marginBottom="130dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/main_menu_copyright"
+        android:id="@+id/textView"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
 

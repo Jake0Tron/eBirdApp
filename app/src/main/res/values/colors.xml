@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="accent_material_light_1">#00c853</color>
-    <color name="background_material_light">#ffffff</color>
-    <color name="primary_material_light">#bdbdbd</color>
+    <color name="birdSighting_background_material_light">#ffffff</color>
+    <color name="birdSighting_primary_material_light">#bdbdbd</color>
+    <color name="birdSighting_gradient_bg_dark">#888888</color>
+    <color name="birdSighting_gradient_bg_light">#AAAAAA</color>
 </resources>
