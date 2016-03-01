@@ -286,7 +286,7 @@ public class SightingsNearMeActivity
 
                     adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
                             .setTitle(titleString)
-                            .setNegativeButton("Close", new DialogInterface.OnClickListener() {    //TODO: Strings this
+                            .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {    //TODO: Strings this
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     //matchingBirdTitles = new ArrayList<String>();
@@ -328,7 +328,6 @@ public class SightingsNearMeActivity
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                // TODO: set myLocation marker to longClick Location and zoom into position selected
 
                 myLatLng = latLng;
                 getBirdsNearMe();
