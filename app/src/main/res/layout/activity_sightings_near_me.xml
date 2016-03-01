@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="100dp"
-        android:background="@color/material_grey_50">
+        android:background="@color/material_grey_300">
 
         <TextView
             android:id="@+id/days_prior_text"
@@ -20,10 +20,10 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:background="@color/birdSighting_gradient_bg_light"
             android:gravity="center"
             android:text="@string/near_me_days_prior"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/primary_text_default_material_light" />
 
         <NumberPicker
             android:id="@+id/radiusPicker"
@@ -38,13 +38,13 @@
             android:id="@+id/radius_text"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:background="@color/birdSighting_gradient_bg_light"
             android:gravity="center"
             android:text="@string/near_me_radius"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/primary_text_default_material_light" />
 
         <NumberPicker
             android:id="@+id/daysPriorPicker"
@@ -69,7 +69,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/material_grey_300">
 
         <!--<ImageButton
             android:id="@+id/near_me_submit"
@@ -93,7 +94,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:text="@string/near_me_reset"
-            android:layout_alignParentBottom="false"
-            android:background="@color/material_grey_50" />
+            android:layout_alignParentBottom="false" />
     </RelativeLayout>
 </LinearLayout>

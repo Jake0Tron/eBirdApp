@@ -5,20 +5,8 @@
     <!-- Main Menu-->
     <!-- <string name="main_menu_"></string> -->
     <string name="main_menu_title">Sightings Near Me</string>
-    <string name="main_menu_record_sighting">Record Sightings</string>
     <string name="main_menu_sightings_near_me">Find Sightings Near Me</string>
     <string name="main_menu_copyright">&#169; Jake Deacon 2016</string>
-
-    <!--Sighting Map -->
-    <string name="map_radius_title">View Radius</string>
-    <string name="map_radius_value">0km</string>
-
-    <!-- Add Sighting Alert-->
-    <string name="bird_sighting_info_title">Bird Sighting Info</string>
-    <string name="bird_data_name">Bird Species</string>
-    <string name="bird_data_age">Bird Age</string>
-    <string name="bird_data_quantity">Quantity</string>
-    <string name="bird_data_notes">Notes...</string>
 
     <!-- Sightings near me -->
     <string name="title_activity_sightings_near_me">Sightings Near Me Map</string>

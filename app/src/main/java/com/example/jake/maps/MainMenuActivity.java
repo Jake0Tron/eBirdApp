@@ -40,11 +40,6 @@ public class MainMenuActivity extends AppCompatActivity {
         return img;
     }
 
-    public void startSightingMapActivity(View v){
-        Intent i = new Intent(this, MapsActivity.class);
-        startActivity(i);
-    }
-
     public void startSightingsNearMeActivity(View v){
         Intent i = new Intent(this, SightingsNearMeActivity.class);
         startActivity(i);

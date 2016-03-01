@@ -73,7 +73,6 @@ public class SightingsNearMeActivity
     // days prior
     NumberPicker daysPriorPicker;
 
-
     private String TAG = "eBirdSightings";
 
     // URL Builder
@@ -82,9 +81,11 @@ public class SightingsNearMeActivity
     HttpAsyncTask http;
     // list of results from request
     ArrayList<MarkerOptions> resultList;
+    // list of markers created after JSON received
     ArrayList<MarkerOptions> matchingMarkers;
-
+    // list of titles from JSON
     ArrayList<String> matchingBirdTitles;
+    // list of subtitles from JSON
     ArrayList<String> matchingBirdSubTitles;
 
     // alert dialog for multiple birds
@@ -286,7 +287,7 @@ public class SightingsNearMeActivity
 
                     adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
                             .setTitle(titleString)
-                            .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {    //TODO: Strings this
+                            .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     //matchingBirdTitles = new ArrayList<String>();
@@ -347,8 +348,6 @@ public class SightingsNearMeActivity
 
 
     public void resetLocation(View v) {
-        //TODO: fix this up
-
         this.myLatLng = new LatLng(lat, lon);
         myLocation = locationManager.getLastKnownLocation(provider);
 
