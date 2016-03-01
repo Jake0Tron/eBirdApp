@@ -14,22 +14,24 @@ import java.util.Random;
 public class MainMenuActivity extends AppCompatActivity {
 
     ImageView mainImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        this.mainImage = (ImageView)findViewById(R.id.main_menu_image);
-        this.mainImage.setImageDrawable(getRandomDrawable());
-    }
-    @Override
-    protected void onResume(){
-        super.onResume();
-        this.mainImage = (ImageView)findViewById(R.id.main_menu_image);
+        this.mainImage = (ImageView) findViewById(R.id.main_menu_image);
         this.mainImage.setImageDrawable(getRandomDrawable());
     }
 
-    Drawable getRandomDrawable(){
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.mainImage = (ImageView) findViewById(R.id.main_menu_image);
+        this.mainImage.setImageDrawable(getRandomDrawable());
+    }
+
+    Drawable getRandomDrawable() {
 
         Drawable img;
         TypedArray imgArr = getResources().obtainTypedArray(R.array.img_id_array);
@@ -40,7 +42,7 @@ public class MainMenuActivity extends AppCompatActivity {
         return img;
     }
 
-    public void startSightingsNearMeActivity(View v){
+    public void startSightingsNearMeActivity(View v) {
         Intent i = new Intent(this, SightingsNearMeActivity.class);
         startActivity(i);
     }
