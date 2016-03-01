@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/main_menu_title"
-        android:id="@+id/textView"
-        android:layout_gravity="center_horizontal"
+    android:layout_height="fill_parent"
+    tools:context=".MainMenuActivity">
 
-        android:textAlignment="center"
-        android:layout_margin="15dp"
-        android:padding="15dp" />
-
-    <Button
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/main_menu_record_sighting"
-        android:id="@+id/main_menu_record_sightings"
+        android:id="@+id/imageView"
         android:layout_gravity="center_horizontal"
-        android:onClick="startSightingMapActivity"
-        android:layout_margin="10dp"
-        android:padding="15dp" />
+        android:layout_alignParentTop="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -31,8 +19,9 @@
         android:id="@+id/main_menu_sightings_near_me"
         android:layout_gravity="center_horizontal"
         android:onClick="startSightingsNearMeActivity"
-        android:layout_margin="10dp"
-        android:padding="15dp" />
+        android:padding="25dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 
-</LinearLayout>
+</RelativeLayout>

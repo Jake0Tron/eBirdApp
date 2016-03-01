@@ -386,8 +386,6 @@ public class SightingsNearMeActivity
                 String dateSeen = "";
                 String birdCount = "";
 
-                //TODO: in-depth checking for each field for null
-
                 try {
                     birdLat = sightingJSON.getDouble("lat");
                 } catch (JSONException e) {
