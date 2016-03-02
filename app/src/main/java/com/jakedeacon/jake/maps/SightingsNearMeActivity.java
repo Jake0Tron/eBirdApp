@@ -8,12 +8,10 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -23,7 +21,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -71,34 +68,34 @@ public class SightingsNearMeActivity
 
     // Number pickers
     // Radius
-    NumberPicker radiusPicker;
+    private  NumberPicker radiusPicker;
     // days prior
-    NumberPicker daysPriorPicker;
+    private NumberPicker daysPriorPicker;
 
     private String TAG = "eBirdSightings";
 
     // URL Builder
-    URLBuilder uBuilder;
+    private URLBuilder uBuilder;
     // http request
-    HttpAsyncTask http;
+    private HttpAsyncTask http;
     // list of results from request
-    ArrayList<MarkerOptions> resultList;
+    private ArrayList<MarkerOptions> resultList;
     // list of markers created after JSON received
-    ArrayList<MarkerOptions> matchingMarkers;
+    private ArrayList<MarkerOptions> matchingMarkers;
     // list of titles from JSON
-    ArrayList<String> matchingBirdTitles;
+    private ArrayList<String> matchingBirdTitles;
     // list of subtitles from JSON
-    ArrayList<String> matchingBirdSubTitles;
+    private ArrayList<String> matchingBirdSubTitles;
 
     // alert dialog for multiple birds
-    AlertDialog multiBirdAlert;
+    private AlertDialog multiBirdAlert;
     // Spinner to handle multiple birds in the alertdialog
-    Spinner multiBirdSpinner;
+    private Spinner multiBirdSpinner;
 
     // Follow Toggle
-    ToggleButton followToggle;
+    private ToggleButton followToggle;
 
-    Context currentContext;
+    private Context currentContext;
 
     @SuppressLint("NewApi")
     @Override
@@ -431,7 +428,7 @@ public class SightingsNearMeActivity
                     birdCount = String.valueOf(sightingJSON.getInt("howMany"));
                 } catch (JSONException e) {
                     birdCount = "X";
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
 
                 String markTitle = birdCount + " " + birdComName + " seen at " + locationName;
@@ -442,8 +439,6 @@ public class SightingsNearMeActivity
                 MarkerOptions birdMarker = new MarkerOptions();
                 birdMarker
                         .draggable(false)
-//                        .icon(BitmapDescriptorFactory
-//                                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                         .alpha(0.7f)
                         .title(markTitle)
                         .snippet(markSnip)
@@ -454,7 +449,8 @@ public class SightingsNearMeActivity
 
                 displayCount++;
             }
-            Toast.makeText(this, displayCount + " sightings in this area : " + resultList.size(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, displayCount + " sightings in this area", Toast.LENGTH_SHORT)
+                    .show();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -465,23 +461,16 @@ public class SightingsNearMeActivity
     }
 
     public void drawMyLocation() {
-        // re-add my position
         if (myMarker != null)
             myMarker.remove();
         myMarkerOptions = new MarkerOptions()
                 .position(myLatLng)
                 .title("My Location: " + lat + " + " + lon)
-                        //.flat(true)
-                        //.rotation(myLocation.getBearing())
-                        //.anchor(0.5f, 0.5f)
                 .draggable(false);
-        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.image_preview));
         myMarker = mMap.addMarker(myMarkerOptions);
     }
 
     public void drawViewRadius() {
-        //Circle RADIUS
-        //handle radius changes
         this.circleOptions = new CircleOptions()
                 .center(myLatLng)
                 .strokeWidth(1.5f)
@@ -490,22 +479,10 @@ public class SightingsNearMeActivity
     }
 
     public void drawResultList() {
-        // if no errors occured
         if (resultList.size() > 0) {
             for (int i = 0; i < resultList.size(); i++) {
-                // drop markers on the map
                 mMap.addMarker(resultList.get(i));
             }
-        }
-    }
-
-    public void drawFannedMarkerList(ArrayList<MarkerOptions> markerlist) {
-        // add remaining markers (fanned)
-        for (int i = 0; i < markerlist.size(); i++) {
-            markerlist.get(i)
-                    .flat(true)
-                    .rotation((float) i * (360 / markerlist.size()));
-            mMap.addMarker(markerlist.get(i));
         }
     }
 
