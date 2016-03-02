@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Birds Near You</string>
     <string name="title_activity_maps">Submit Sighting</string>
+    <string name="version_code">1</string>
+    <string name="version_string">1.0</string>
 
     <!-- Main Menu-->
     <!-- <string name="main_menu_"></string> -->
@@ -14,6 +16,8 @@
     <string name="near_me_days_prior">Days Prior:</string>
     <string name="near_me_close">Close</string>
     <string name="near_me_reset">Reset Location</string>
+    <string name="near_me_follow">Follow Me</string>
+    <string name="near_me_toggle_error">Please Disable following to change location!</string>
     <!-- Sighting near me alert-->
     <string name="near_me_alert_title">Bird Species Near Me: </string>
 

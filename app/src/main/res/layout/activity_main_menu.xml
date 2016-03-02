@@ -13,19 +13,10 @@
         android:layout_gravity="center_horizontal"
         android:layout_alignParentTop="true"
         android:src="@drawable/bird_logo"
-        android:layout_above="@+id/main_menu_sightings_near_me" />
+        android:layout_above="@+id/main_menu_sightings_near_me"
+        android:padding="10dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_menu_sightings_near_me"
-        android:id="@+id/main_menu_sightings_near_me"
-        android:layout_gravity="center_horizontal"
-        android:onClick="startSightingsNearMeActivity"
-        android:padding="25dp"
-        android:layout_marginBottom="130dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,6 +25,18 @@
         android:text="@string/main_menu_copyright"
         android:id="@+id/textView"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_menu_sightings_near_me"
+        android:layout_gravity="center_horizontal"
+        android:onClick="startSightingsNearMeActivity"
+        android:padding="0dp"
+        android:layout_marginBottom="60dp"
+        android:src="@drawable/button"
+        android:layout_above="@+id/textView"
         android:layout_centerHorizontal="true" />
 
 

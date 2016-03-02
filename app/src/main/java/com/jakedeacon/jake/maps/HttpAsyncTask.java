@@ -1,4 +1,4 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 /**
  * Created by Jake on 2/19/2016.

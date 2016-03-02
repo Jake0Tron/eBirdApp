@@ -1,4 +1,4 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 import android.util.Log;
 
@@ -44,7 +44,6 @@ public class URLBuilder {
         this.url += "&back=" + String.valueOf(daysPrior);
         // request JSON
         this.url += "&hotspot=false&includeProvisional=true&locale=en_US&fmt=json";
-        Log.d("URLvalue", this.url);
 
         return this.url;
     }

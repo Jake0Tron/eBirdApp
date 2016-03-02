@@ -54,6 +54,32 @@
             android:layout_toEndOf="@+id/days_prior_text"
             android:layout_toRightOf="@+id/days_prior_text" />
 
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/near_me_follow"
+            android:id="@+id/toggleFollow"
+            android:layout_toEndOf="@+id/daysPriorPicker"
+            android:layout_toRightOf="@+id/daysPriorPicker"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/radiusPicker"
+            android:layout_toStartOf="@+id/radiusPicker" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/near_me_follow"
+            android:id="@+id/textView2"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/radiusPicker"
+            android:layout_toStartOf="@+id/radiusPicker"
+            android:layout_toRightOf="@+id/daysPriorPicker"
+            android:layout_toEndOf="@+id/daysPriorPicker"
+            android:layout_above="@+id/toggleFollow"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="@color/primary_text_default_material_light" />
+
 
     </RelativeLayout>
 
@@ -65,24 +91,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        tools:context="com.example.jake.maps.SightingsNearMeActivity" />
+        tools:context=".SightingsNearMeActivity" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/material_grey_300">
 
-        <!--<ImageButton
-            android:id="@+id/near_me_submit"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:cropToPadding="false"
-            android:onClick="sightingsNearMeSubmit"
-            android:src="@drawable/image_preview_square"
-            android:layout_alignParentTop="true" />
-        -->
         <Button
             android:id="@+id/reset_location"
             android:onClick="resetLocation"

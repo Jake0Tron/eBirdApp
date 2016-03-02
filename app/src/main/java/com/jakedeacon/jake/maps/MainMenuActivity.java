@@ -1,12 +1,12 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.util.Random;
@@ -14,11 +14,13 @@ import java.util.Random;
 public class MainMenuActivity extends AppCompatActivity {
 
     ImageView mainImage;
+    ImageButton imgButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+        this.imgButton = (ImageButton) findViewById(R.id.main_menu_sightings_near_me);
 
         this.mainImage = (ImageView) findViewById(R.id.main_menu_image);
         this.mainImage.setImageDrawable(getRandomDrawable());
@@ -29,6 +31,7 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onResume();
         this.mainImage = (ImageView) findViewById(R.id.main_menu_image);
         this.mainImage.setImageDrawable(getRandomDrawable());
+        this.imgButton.setImageResource(R.drawable.button);
     }
 
     Drawable getRandomDrawable() {
@@ -43,6 +46,7 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
     public void startSightingsNearMeActivity(View v) {
+        this.imgButton.setImageResource(R.drawable.button_pressed);
         Intent i = new Intent(this, SightingsNearMeActivity.class);
         startActivity(i);
     }

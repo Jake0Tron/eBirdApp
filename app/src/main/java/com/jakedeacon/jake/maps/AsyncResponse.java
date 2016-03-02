@@ -1,4 +1,4 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

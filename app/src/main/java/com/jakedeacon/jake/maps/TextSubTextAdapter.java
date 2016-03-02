@@ -1,4 +1,4 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 import android.app.Activity;
 import android.content.Context;

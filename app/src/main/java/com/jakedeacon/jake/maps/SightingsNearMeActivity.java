@@ -1,4 +1,4 @@
-package com.example.jake.maps;
+package com.jakedeacon.jake.maps;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -17,11 +17,13 @@ import android.widget.AdapterView;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -93,6 +95,9 @@ public class SightingsNearMeActivity
     // Spinner to handle multiple birds in the alertdialog
     Spinner multiBirdSpinner;
 
+    // Follow Toggle
+    ToggleButton followToggle;
+
     Context currentContext;
 
     @SuppressLint("NewApi")
@@ -122,6 +127,9 @@ public class SightingsNearMeActivity
         this.minZoom = 4;  // far
         this.radiusValue = 5;
         this.daysPriorValue = 25;
+
+        this.followToggle = (ToggleButton) findViewById(R.id.toggleFollow);
+        this.followToggle.setChecked(true);
 
         // get number pickers
         daysPriorPicker = (NumberPicker) findViewById(R.id.daysPriorPicker);
@@ -164,28 +172,16 @@ public class SightingsNearMeActivity
         if (myLocation != null) {
             onLocationChanged(myLocation);
         } else {
-            Log.d(TAG, "NO LOCATION");
             Toast.makeText(this, "Please Enable GPS!", Toast.LENGTH_LONG).show();
         }
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         this.myLatLng = new LatLng(lat, lon);
         drawMyLocation();
-        //drawViewRadius();
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLatLng)
@@ -198,57 +194,59 @@ public class SightingsNearMeActivity
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
-                campos = cameraPosition;
+                mMap.getUiSettings().setScrollGesturesEnabled(!followToggle.isChecked());
                 float curZoomVal = cameraPosition.zoom;
                 float curBearing = cameraPosition.bearing;
                 float curTilt = cameraPosition.tilt;
 
-                drawMyLocation();
+                // if not following, allow camera to move
+                if (!followToggle.isChecked()) {
+                    campos = cameraPosition;
 
-                // Camera Limits
-                if (cameraPosition.zoom >= maxZoom) {
-                    CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLatLng)      // Sets the center of the map to my location
-                            .zoom(maxZoom - 0.01f)                   // Sets the zoom
-                            .bearing(curBearing)                // Sets the orientation of the camera to east
-                            .tilt(curTilt)                   // Sets the tilt of the camera to tilt value
-                            .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-                    //myMarker.remove();
-                    //myMarker = mMap.addMarker(myMarkerOptions);
+                    drawMyLocation();
 
-                } else if (cameraPosition.zoom <= minZoom) {
-                    CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLatLng)      // Sets the center of the map to me
-                            .zoom(minZoom + 0.01f)                   // Sets the zoom
-                            .bearing(curBearing)                // Sets the orientation of the camera to east
-                            .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
-                    // myMarker.remove();
-                    //myMarker = mMap.addMarker(myMarkerOptions);
+                    // Camera Limits
+                    if (cameraPosition.zoom >= maxZoom) {
+                        CameraPosition camPos = new CameraPosition.Builder()
+                                .target(myLatLng)      // Sets the center of the map to my location
+                                .zoom(maxZoom - 0.01f) // Sets the zoom
+                                .bearing(curBearing)   // Sets the orientation of the camera to east
+                                .tilt(curTilt)         // Sets the tilt of the camera to tilt value
+                                .build();              // Creates a CameraPosition from the builder
+                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    } else if (cameraPosition.zoom <= minZoom) {
+                        CameraPosition camPos = new CameraPosition.Builder()
+                                .target(myLatLng)      // Sets the center of the map to me
+                                .zoom(minZoom + 0.01f) // Sets the zoom
+                                .bearing(curBearing)   // Sets the orientation of the camera to east
+                                .tilt(curTilt)         // Sets the tilt of the camera to 30 degrees
+                                .build();              // Creates a CameraPosition from the builder
+                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+                    } else {
+                        // lock camera on user
+                        CameraPosition camPos = new CameraPosition.Builder()
+                                .target(myLatLng)      // Sets the center of the map to me
+                                .zoom(curZoomVal)      // Sets the zoom
+                                .bearing(curBearing)   // Sets the orientation of the camera to east
+                                .tilt(curTilt)         // Sets the tilt of the camera to 30 degrees
+                                .build();              // Creates a CameraPosition from the builder
+                    }
                 } else {
-                    // lock camera on user
-                    CameraPosition camPos = new CameraPosition.Builder()
-                            .target(myLatLng)      // Sets the center of the map to Mountain View
-                            .zoom(curZoomVal)                   // Sets the zoom
-                            .bearing(curBearing)                // Sets the orientation of the camera to east
-                            .tilt(curTilt)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-                    //myMarker.remove();
-                    //myMarker = mMap.addMarker(myMarkerOptions);
+                    // animate camera to follow myLatLng
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(myLatLng)
+                            .zoom(curZoomVal)
+                            .tilt(curTilt)
+                            .bearing(curBearing)
+                            .build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
-
             }// end onCameraChange
         });// end onCameraChangeListener
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                //Log.d(TAG, "MARKER SELECT : " + matchingMarkers.size());
-
-                //if (!marker.equals(myMarker)) {
-                // Create list of data of all birds at this marker location
 
                 matchingBirdTitles.clear();
                 matchingBirdSubTitles.clear();
@@ -264,22 +262,13 @@ public class SightingsNearMeActivity
                     String matchingBirdDataTitle = resultList.get(i).getTitle();
                     String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
 
-                    Log.d(TAG, matchingBirdDataTitle + " " + matchingBirdDataSubTitle);
-                    Log.d(TAG, markerLat + " " + markerLon);
-
                     if ((markerLat == clickLat) && (markerLon == clickLon)) {
-                        //Log.d(TAG, "MATCH!");
                         matchingBirdTitles.add(matchingBirdDataTitle);
                         matchingBirdSubTitles.add(matchingBirdDataSubTitle);
-                    } else {
-                        //Log.d(TAG, "NO MATCH!");
                     }
                 }
 
                 if (matchingBirdTitles.size() > 0) {
-                    Log.d(TAG, "Multiple birds at marker");
-
-                    // add alertdialog with spinner to handle multiple birds
                     LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
                     AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
                     String titleString = getResources().getString(R.string.near_me_alert_title) + " " +
@@ -290,16 +279,13 @@ public class SightingsNearMeActivity
                             .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    //matchingBirdTitles = new ArrayList<String>();
                                     dialog.cancel();
                                 }
                             });
 
-                    // build AlertDialog
                     AlertDialog dialog = adb.create();
                     dialog.show();
 
-                    // set spinner view
                     multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
 
                     if (multiBirdSpinner != null) {
@@ -309,17 +295,6 @@ public class SightingsNearMeActivity
                                 matchingBirdSubTitles);
                         multiBirdSpinner.setAdapter(adapter);
                         multiBirdSpinner.setSelection(0, true);
-                        multiBirdSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
                     }
                 }
                 return true;
@@ -328,11 +303,17 @@ public class SightingsNearMeActivity
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapLongClick(LatLng latLng) {
-
-                myLatLng = latLng;
-                getBirdsNearMe();
-                drawMyLocation();
+            public void onMapLongClick(LatLng touchLatLng) {
+                // only allow long press if Follow is disabled
+                if (!followToggle.isChecked()) {
+                    myLatLng = touchLatLng;
+                    getBirdsNearMe();
+                    drawMyLocation();
+                } else {
+                    // pop toast to alert user that toggle is on
+                    Toast.makeText(currentContext, R.string.near_me_toggle_error, Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
         });// end mapLongClickListener
 
@@ -348,24 +329,28 @@ public class SightingsNearMeActivity
 
 
     public void resetLocation(View v) {
+        resetMyLocation();
+        resetCameraLocation();
+    }
+
+    public void resetMyLocation() {
         this.myLatLng = new LatLng(lat, lon);
         myLocation = locationManager.getLastKnownLocation(provider);
+        getBirdsNearMe();
+    }
 
+    public void resetCameraLocation() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLatLng)
                 .zoom(defZoom)
                 .tilt(tiltValue)
                 .build();
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        getBirdsNearMe();
-
     }
 
     // when data is returned handle it here
     @Override
     public void processFinish(JSONArray result) {
-        Log.d(TAG, result.toString());
-
         // There is something odd with how eBird filters their results via location and distance from it.
         // after certain distances birds will be removed from the list for reasons I can't tell...
         // Will have to look into this further.
@@ -391,7 +376,6 @@ public class SightingsNearMeActivity
         try {
             for (int i = 0; i < result.length(); i++) {
                 JSONObject sightingJSON = result.getJSONObject(i);
-                //Log.d(TAG, sightingJSON.toString());
                 // create a markeroptions to hold information about bird sighting
                 double birdLat = 0.0;
                 double birdLong = 0.0;
@@ -404,7 +388,6 @@ public class SightingsNearMeActivity
                 try {
                     birdLat = sightingJSON.getDouble("lat");
                 } catch (JSONException e) {
-                    Log.d(TAG, "BirdLat is null");
                     birdLat = 0.0;
                     e.printStackTrace();
                 }
@@ -412,7 +395,6 @@ public class SightingsNearMeActivity
                 try {
                     birdLong = sightingJSON.getDouble("lng");
                 } catch (JSONException e) {
-                    Log.d(TAG, "BirdLng is null");
                     birdLong = 0.0;
                     e.printStackTrace();
                 }
@@ -420,7 +402,6 @@ public class SightingsNearMeActivity
                 try {
                     birdComName = sightingJSON.getString("comName");
                 } catch (JSONException e) {
-                    Log.d(TAG, " comName is null");
                     birdComName = "";
                     e.printStackTrace();
                 }
@@ -428,7 +409,6 @@ public class SightingsNearMeActivity
                 try {
                     birdSciName = sightingJSON.getString("sciName");
                 } catch (JSONException e) {
-                    Log.d(TAG, birdComName + " sciName is null");
                     birdSciName = "";
                     e.printStackTrace();
                 }
@@ -436,7 +416,6 @@ public class SightingsNearMeActivity
                 try {
                     locationName = sightingJSON.getString("locName");
                 } catch (JSONException e) {
-                    Log.d(TAG, birdComName + " locName is null");
                     locationName = "";
                     e.printStackTrace();
                 }
@@ -444,7 +423,6 @@ public class SightingsNearMeActivity
                 try {
                     dateSeen = sightingJSON.getString("obsDt");
                 } catch (JSONException e) {
-                    Log.d(TAG, birdComName + " ObsDt is null");
                     dateSeen = "";
                     e.printStackTrace();
                 }
@@ -452,7 +430,6 @@ public class SightingsNearMeActivity
                 try {
                     birdCount = String.valueOf(sightingJSON.getInt("howMany"));
                 } catch (JSONException e) {
-                    Log.d(TAG, birdComName + " birdCount is null");
                     birdCount = "X";
                     //e.printStackTrace();
                 }
@@ -535,7 +512,9 @@ public class SightingsNearMeActivity
     @SuppressLint("NewApi")
     protected void onResume() {
         super.onResume();
-        locationManager.requestLocationUpdates(provider, 800, 1, this);
+        // check every second or 100 meters (tweak this for driving/walking etc)
+        locationManager.requestLocationUpdates(provider, 2000, 100, this);
+        resetMyLocation();
     }
 
     @SuppressLint("NewApi")
@@ -546,11 +525,17 @@ public class SightingsNearMeActivity
     }
 
     // LOCATION LISTENER
-
     @Override
     public void onLocationChanged(Location location) {
         lat = (float) (location.getLatitude());
         lon = (float) (location.getLongitude());
+
+        // if follow is enabled, make marker reset to current location before redrawing
+        if (followToggle.isChecked()) {
+            this.myLatLng = new LatLng(lat, lon);
+            resetMyLocation();
+        }
+        getBirdsNearMe();
     }
 
     @Override
@@ -567,5 +552,4 @@ public class SightingsNearMeActivity
     public void onProviderDisabled(String provider) {
 
     }
-
 }
