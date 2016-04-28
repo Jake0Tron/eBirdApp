@@ -10,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 @SuppressWarnings("ALL")
 public class SightingsNearMeActivity
         extends FragmentActivity
-        implements AsyncResponse, OnMapReadyCallback, LocationListener {
+        implements AsyncBirdSightingResponse, AsyncHotspotResponse, OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
 
@@ -68,7 +69,7 @@ public class SightingsNearMeActivity
 
     // Number pickers
     // Radius
-    private  NumberPicker radiusPicker;
+    private NumberPicker radiusPicker;
     // days prior
     private NumberPicker daysPriorPicker;
 
@@ -76,24 +77,30 @@ public class SightingsNearMeActivity
 
     // URL Builder
     private URLBuilder uBuilder;
-    // http request
-    private BirdSightingAsyncTask http;
+
+    // sightTask request
+    private BirdSightingAsyncTask sightTask;
     // list of results from request
-    private ArrayList<MarkerOptions> resultList;
+    private ArrayList<MarkerOptions> sightingResultList;
     // list of markers created after JSON received
-    private ArrayList<MarkerOptions> matchingMarkers;
+    private ArrayList<MarkerOptions> sightingMarkers;
     // list of titles from JSON
     private ArrayList<String> matchingBirdTitles;
     // list of subtitles from JSON
     private ArrayList<String> matchingBirdSubTitles;
-
     // alert dialog for multiple birds
     private AlertDialog multiBirdAlert;
+
     // Spinner to handle multiple birds in the alertdialog
     private Spinner multiBirdSpinner;
-
     // Follow Toggle
     private ToggleButton followToggle;
+
+    // Hotspot task request
+    private HotspotAsyncTask hotTask;
+    // list of markers for hotspots
+    private ArrayList<MarkerOptions> hotspotMarkers;
+
 
     private Context currentContext;
 
@@ -156,13 +163,14 @@ public class SightingsNearMeActivity
             }
         });
 
-        resultList = new ArrayList<MarkerOptions>();
-        matchingMarkers = new ArrayList<MarkerOptions>();
+        sightingResultList = new ArrayList<MarkerOptions>();
+        sightingMarkers = new ArrayList<MarkerOptions>();
+        hotspotMarkers = new ArrayList<MarkerOptions>();
         matchingBirdTitles = new ArrayList<String>();
         matchingBirdSubTitles = new ArrayList<String>();
 
-        this.http = new BirdSightingAsyncTask();
-        this.http.delegate = this;
+        this.sightTask = new BirdSightingAsyncTask();
+        this.sightTask.delegate = this;
         this.uBuilder = new URLBuilder();
 
         // Initialize the location fields
@@ -248,16 +256,16 @@ public class SightingsNearMeActivity
                 matchingBirdTitles.clear();
                 matchingBirdSubTitles.clear();
 
-                for (int i = 0; i < resultList.size(); i++) {
+                for (int i = 0; i < sightingResultList.size(); i++) {
 
-                    double markerLat = resultList.get(i).getPosition().latitude;
-                    double markerLon = resultList.get(i).getPosition().longitude;
+                    double markerLat = sightingResultList.get(i).getPosition().latitude;
+                    double markerLon = sightingResultList.get(i).getPosition().longitude;
 
                     double clickLat = marker.getPosition().latitude;
                     double clickLon = marker.getPosition().longitude;
 
-                    String matchingBirdDataTitle = resultList.get(i).getTitle();
-                    String matchingBirdDataSubTitle = resultList.get(i).getSnippet();
+                    String matchingBirdDataTitle = sightingResultList.get(i).getTitle();
+                    String matchingBirdDataSubTitle = sightingResultList.get(i).getSnippet();
 
                     if ((markerLat == clickLat) && (markerLon == clickLon)) {
                         matchingBirdTitles.add(matchingBirdDataTitle);
@@ -315,15 +323,25 @@ public class SightingsNearMeActivity
         });// end mapLongClickListener
 
         getBirdsNearMe();
+        getHotspotsNearMe();
+    }
+
+    public void getHotspotsNearMe() {
+        String url = uBuilder.getHotspotURL(myLatLng, radiusValue, daysPriorValue);
+//        String url = "http://ebird.org/ws1.1/ref/hotspot/geo?lat=42.4613266&lng=-76.5059255&dist=5&back=25&hotspot=false&includeProvisional=true&locale=en_US&fmt=xml";
+
+        Log.d("hotspotURL", url);
+        this.hotTask = new HotspotAsyncTask();
+        this.hotTask.setDelegate(this);
+        this.hotTask.execute(url);
     }
 
     public void getBirdsNearMe() {
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
-        this.http = new BirdSightingAsyncTask();
-        this.http.setDelegate(this);
-        this.http.execute(url);
+        this.sightTask = new BirdSightingAsyncTask();
+        this.sightTask.setDelegate(this);
+        this.sightTask.execute(url);
     }
-
 
     public void resetLocation(View v) {
         resetMyLocation();
@@ -345,14 +363,91 @@ public class SightingsNearMeActivity
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    // when data is returned handle it here
+    //when hotspot data is returned handle it here
     @Override
-    public void processFinish(JSONArray result) {
+    public void hotspotProcessFinish(JSONObject result){
+
+        hotspotMarkers.clear();
+
+        //{
+        // "response":
+        //  {"result":
+        //    {"location":[
+        //      {"lng":-76.5146989,"loc-id":"L159024","loc-name":"Allan H. Treman State Marine Park--Marina","lat":42.4585456,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4504712,"loc-id":"L4415110","loc-name":"AviTrail47a - 1 pts","lat":42.4756341,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4489116,"loc-id":"L4415111","loc-name":"AviTrail47b - 2 pts","lat":42.476738,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4577198,"loc-id":"L877944","loc-name":"Bluegrass Lane Natural Area","lat":42.4632963,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4998821,"loc-id":"L1107958","loc-name":"Burdick Hill Rd., Lansing","lat":42.4980885,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.5186596,"loc-id":"L518712","loc-name":"Buttermilk Falls SP (Lower)","lat":42.417659,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.492132,"loc-id":"L1597677","loc-name":"Cascadilla Gorge Trail","lat":42.44298,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.46307,"loc-id":"L157713","loc-name":"Cornell Plantations","lat":42.45136,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4719972,"loc-id":"L290965","loc-name":"Cornell Plantations--Botanical Garden","lat":42.4494592,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4572692,"loc-id":"L799199","loc-name":"Cornell Plantations--F.R. Newman Arboretum","lat":42.4520722,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
+        //      {"lng":-76.4806044,"loc-id":"L269457","loc-name":"Cornell University--Rockwell Azalea Garden","lat":42.4478844,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"}...
+
+        Log.d("hotspotjson", result.toString());
+
+        try {
+            JSONObject o1 = result.getJSONObject("response");
+            // TODO: LOOK AT THIS
+            JSONArray locArr = o1.getJSONArray("location");
+
+            for (int i=0; i < locArr.length(); i++) {
+
+                //{
+                //  "lng":-76.4806044,                                          0
+                //  "loc-id":"L269457",                                         1
+                //  "loc-name":"Cornell University--Rockwell Azalea Garden",    2
+                //  "lat":42.4478844,                                           3
+                //  "country-code":"US",                                        4
+                // /  "subnational2-code":"US-NY-109",                          5
+                //  "subnational1-code":"US-NY"                                 6
+                // }
+
+                JSONObject location = locArr.getJSONObject(i);
+                double hotLng = 0.0;
+                double hotLat = 0.0;
+                String hotName = "";
+                String locSnip = "";
+
+
+                hotLat = location.getDouble("lat");
+                hotLng = location.getDouble("lng");
+
+                LatLng locLL = new LatLng(hotLat, hotLng);
+
+                String displayString = location.getString("loc-name") + " " + location.getString("country-code");
+                locSnip = location.getString("subnational1-code") + " " + String.valueOf(hotLat) + " " + String.valueOf(hotLng);
+                hotName = displayString;
+
+                MarkerOptions locMarker = new MarkerOptions();
+                locMarker
+                        .position(locLL)
+                        .flat(false)
+                        .alpha(0.7f)
+                        .draggable(false)
+                        .title(hotName)
+                        .snippet(locSnip)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon));
+
+                hotspotMarkers.add(locMarker);
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        drawHotspotList();
+    }
+
+    // when bird sighting data is returned handle it here
+    @Override
+    public void sightingProcessFinish(JSONArray result) {
         // There is something odd with how eBird filters their results via location and distance from it.
         // after certain distances birds will be removed from the list for reasons I can't tell...
         // Will have to look into this further.
 
-        resultList.clear();
+        sightingResultList.clear();
         mMap.clear();
 
         /*
@@ -445,7 +540,7 @@ public class SightingsNearMeActivity
                         .position(birdPos)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.bird_icon_small));
 
-                resultList.add(birdMarker);
+                sightingResultList.add(birdMarker);
 
                 displayCount++;
             }
@@ -479,9 +574,17 @@ public class SightingsNearMeActivity
     }
 
     public void drawResultList() {
-        if (resultList.size() > 0) {
-            for (int i = 0; i < resultList.size(); i++) {
-                mMap.addMarker(resultList.get(i));
+        if (sightingResultList.size() > 0) {
+            for (int i = 0; i < sightingResultList.size(); i++) {
+                mMap.addMarker(sightingResultList.get(i));
+            }
+        }
+    }
+
+    public void drawHotspotList(){
+        if (hotspotMarkers.size() > 0){
+            for (int i=0; i < hotspotMarkers.size(); i++){
+                mMap.addMarker(hotspotMarkers.get(i));
             }
         }
     }
@@ -513,6 +616,7 @@ public class SightingsNearMeActivity
             resetMyLocation();
         }
         getBirdsNearMe();
+        getHotspotsNearMe();
     }
 
     @Override
