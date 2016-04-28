@@ -46,15 +46,15 @@ import java.net.URL;
 
         Code sourced and altered from http://hmkcode.com/android-parsing-json-data/
 */
-public class HttpAsyncTask extends AsyncTask<String, Integer, JSONArray> {
+public class BirdSightingAsyncTask extends AsyncTask<String, Integer, JSONArray> {
 
     public AsyncResponse delegate = null;
 
-    public HttpAsyncTask(AsyncResponse delegate){
+    public BirdSightingAsyncTask(AsyncResponse delegate){
         this.delegate = delegate;
     }
 
-    public HttpAsyncTask(){
+    public BirdSightingAsyncTask(){
         this.delegate = null;
     }
 

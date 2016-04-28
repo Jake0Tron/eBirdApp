@@ -77,7 +77,7 @@ public class SightingsNearMeActivity
     // URL Builder
     private URLBuilder uBuilder;
     // http request
-    private HttpAsyncTask http;
+    private BirdSightingAsyncTask http;
     // list of results from request
     private ArrayList<MarkerOptions> resultList;
     // list of markers created after JSON received
@@ -161,7 +161,7 @@ public class SightingsNearMeActivity
         matchingBirdTitles = new ArrayList<String>();
         matchingBirdSubTitles = new ArrayList<String>();
 
-        this.http = new HttpAsyncTask();
+        this.http = new BirdSightingAsyncTask();
         this.http.delegate = this;
         this.uBuilder = new URLBuilder();
 
@@ -319,7 +319,7 @@ public class SightingsNearMeActivity
 
     public void getBirdsNearMe() {
         String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
-        this.http = new HttpAsyncTask();
+        this.http = new BirdSightingAsyncTask();
         this.http.setDelegate(this);
         this.http.execute(url);
     }
