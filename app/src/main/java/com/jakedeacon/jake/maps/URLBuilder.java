@@ -48,6 +48,35 @@ public class URLBuilder {
         return this.url;
     }
 
+    public String getHotspotURL(LatLng location, int radius, int daysPrior){
+// handle data limits
+        if (radius > 50)
+            radius = 50;
+        else if (radius < 1 )
+            radius = 1;
+
+        if (daysPrior > 30)
+            daysPrior = 30;
+        else if (daysPrior < 1)
+            daysPrior = 1;
+
+        // URL format:
+        //http://ebird.org/ws1.1/ref/hotspot/geo?lng=-76.51&lat=42.46&dist=2&back=5&fmt=json
+
+        this.url = "http://ebird.org/ws1.1/ref/hotspot/geo?";
+        //lat
+        this.url += "lat=" + String.valueOf(location.latitude);
+        // lng
+        this.url += "&lng=" + String.valueOf(location.longitude);
+        // radius
+        this.url += "&dist=" + String.valueOf(radius);
+        //days prior
+        this.url += "&back=" + String.valueOf(daysPrior);
+        // request JSON
+
+        return this.url;
+    }
+
     public URLBuilder(){
         this.url = "";
     }

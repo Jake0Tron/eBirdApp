@@ -9,21 +9,6 @@ import android.os.AsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import android.os.AsyncTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -48,9 +33,9 @@ import java.net.URL;
 */
 public class BirdSightingAsyncTask extends AsyncTask<String, Integer, JSONArray> {
 
-    public AsyncResponse delegate = null;
+    public AsyncBirdSightingResponse delegate = null;
 
-    public BirdSightingAsyncTask(AsyncResponse delegate){
+    public BirdSightingAsyncTask(AsyncBirdSightingResponse delegate){
         this.delegate = delegate;
     }
 
@@ -58,7 +43,7 @@ public class BirdSightingAsyncTask extends AsyncTask<String, Integer, JSONArray>
         this.delegate = null;
     }
 
-    public void setDelegate(AsyncResponse de){
+    public void setDelegate(AsyncBirdSightingResponse de){
         this.delegate = de;
     }
 
@@ -154,10 +139,10 @@ public class BirdSightingAsyncTask extends AsyncTask<String, Integer, JSONArray>
     // http://stackoverflow.com/questions/12575068/how-to-get-the-result-of-onpostexecute-to-main-activity-because-asynctask-is-a
 
     // POST execute will call processFinish() and pass a JSON object back to activity to be used
-    // TO RECEIVE DATA: implement the AsyncResponse interface and the processFinish method
+    // TO RECEIVE DATA: implement the AsyncBirdSightingResponse interface and the processFinish method
     @Override
     protected void onPostExecute(JSONArray result){
-        delegate.processFinish(result);
+        delegate.sightingProcessFinish(result);
     }
 
 
