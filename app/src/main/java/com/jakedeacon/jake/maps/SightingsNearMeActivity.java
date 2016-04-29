@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -73,13 +73,12 @@ public class SightingsNearMeActivity
     // days prior
     private NumberPicker daysPriorPicker;
 
-    private String TAG = "eBirdSightings";
-
     // URL Builder
     private URLBuilder uBuilder;
 
     // sightTask request
     private BirdSightingAsyncTask sightTask;
+
     // list of results from request
     private ArrayList<MarkerOptions> sightingResultList;
     // list of markers created after JSON received
@@ -90,19 +89,27 @@ public class SightingsNearMeActivity
     private ArrayList<String> matchingBirdSubTitles;
     // alert dialog for multiple birds
     private AlertDialog multiBirdAlert;
-
     // Spinner to handle multiple birds in the alertdialog
     private Spinner multiBirdSpinner;
+
     // Follow Toggle
     private ToggleButton followToggle;
 
     // Hotspot task request
     private HotspotAsyncTask hotTask;
+
     // list of markers for hotspots
     private ArrayList<MarkerOptions> hotspotMarkers;
-
-
     private Context currentContext;
+
+    // boolean indicating whether or not species-specific search is being used
+    boolean specSpec;
+
+    //species to search for
+    String searchSpecies;
+
+    // TODO: DEBUG
+    private String TAG = "eBirdSightings";
 
     @SuppressLint("NewApi")
     @Override
@@ -135,17 +142,37 @@ public class SightingsNearMeActivity
         this.followToggle = (ToggleButton) findViewById(R.id.toggleFollow);
         this.followToggle.setChecked(true);
 
+        Intent i = getIntent();
+        this.searchSpecies = i.getStringExtra("species");
+        if (searchSpecies.equals("")) {
+            // no specific species, find all
+            specSpec = false;
+        }else{
+            // find specifoc species
+            specSpec = true;
+        }
+
         // get number pickers
         daysPriorPicker = (NumberPicker) findViewById(R.id.daysPriorPicker);
         daysPriorPicker.setMinValue(1);
         daysPriorPicker.setMaxValue(30);
         daysPriorPicker.setValue(daysPriorValue);
+        daysPriorPicker.setOnScrollListener(new NumberPicker.OnScrollListener() {
+            @Override
+            public void onScrollStateChange(NumberPicker view, int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE){
+                    daysPriorValue = view.getValue();
+                    getBirdsNearMe();
+                    getHotspotsNearMe();
+                }
+            }
+        });
         daysPriorPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                daysPriorValue = newVal;
-                getBirdsNearMe();
-                getHotspotsNearMe();
+//                daysPriorValue = newVal;
+//                getBirdsNearMe();
+//                getHotspotsNearMe();
             }
         });
 
@@ -153,15 +180,24 @@ public class SightingsNearMeActivity
         radiusPicker.setMinValue(1);
         radiusPicker.setMaxValue(30);
         radiusPicker.setValue(radiusValue);
+        radiusPicker.setOnScrollListener(new NumberPicker.OnScrollListener() {
+            @Override
+            public void onScrollStateChange(NumberPicker view, int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE){
+                    radiusValue = view.getValue();
+                    myCircle.remove();
+                    drawViewRadius();
+                    getBirdsNearMe();
+                    getHotspotsNearMe();
+                }
+            }
+        });
         radiusPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                radiusValue = newVal;
+//                radiusValue = newVal;
                 //handle radius changes
-                myCircle.remove();
-                drawViewRadius();
-                getBirdsNearMe();
-                getHotspotsNearMe();
+
             }
         });
 
@@ -172,14 +208,14 @@ public class SightingsNearMeActivity
         matchingBirdSubTitles = new ArrayList<String>();
 
         this.sightTask = new BirdSightingAsyncTask();
-        this.sightTask.delegate = this;
+        this.sightTask.setDelegate(this);
         this.uBuilder = new URLBuilder();
 
         // Initialize the location fields
         if (myLocation != null) {
             onLocationChanged(myLocation);
         } else {
-            Toast.makeText(this, "Please Enable GPS!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please Enable GPS!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -340,7 +376,14 @@ public class SightingsNearMeActivity
     }
 
     public void getBirdsNearMe() {
-        String url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
+        String url;
+        if (!specSpec) {
+            url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
+
+        }else{
+            url = uBuilder.getNearbySpecificSightings(searchSpecies, myLatLng, radiusValue, daysPriorValue);
+        }
+
         this.sightTask = new BirdSightingAsyncTask();
         this.sightTask.setDelegate(this);
         this.sightTask.execute(url);
@@ -368,7 +411,7 @@ public class SightingsNearMeActivity
 
     //when hotspot data is returned handle it here
     @Override
-    public void hotspotProcessFinish(JSONObject result){
+    public void hotspotProcessFinish(JSONObject result) {
 
         hotspotMarkers.clear();
 
@@ -393,12 +436,12 @@ public class SightingsNearMeActivity
         try {
             JSONObject response = result.getJSONObject("response");
 //            Log.d("hotspotO1", response.toString());
-            if (!response.get("result").equals("")){      // ensure there are results
+            if (!response.get("result").equals("")) {      // ensure there are results
                 JSONObject result1 = response.getJSONObject("result");
 //            Log.d("hotspotO2", result1.toString());
                 JSONArray locArr = result1.getJSONArray("location");
 //            Log.d("hotspotLOCarr", locArr.toString());
-                for (int i=0; i < locArr.length(); i++) {
+                for (int i = 0; i < locArr.length(); i++) {
 
                     //{
                     //  "lng":-76.4806044,                                          0
@@ -585,9 +628,9 @@ public class SightingsNearMeActivity
         }
     }
 
-    public void drawHotspotList(){
-        if (hotspotMarkers.size() > 0){
-            for (int i=0; i < hotspotMarkers.size(); i++){
+    public void drawHotspotList() {
+        if (hotspotMarkers.size() > 0) {
+            for (int i = 0; i < hotspotMarkers.size(); i++) {
                 mMap.addMarker(hotspotMarkers.get(i));
             }
         }
@@ -597,7 +640,7 @@ public class SightingsNearMeActivity
     protected void onResume() {
         super.onResume();
         // check every second or 100 meters (tweak this for driving/walking etc)
-        locationManager.requestLocationUpdates(provider, 2000, 100, this);
+        locationManager.requestLocationUpdates(provider, 10000, 750, this);
         resetMyLocation();
     }
 
@@ -606,6 +649,11 @@ public class SightingsNearMeActivity
     protected void onPause() {
         super.onPause();
         locationManager.removeUpdates(this);
+    }
+    @Override
+    protected void onStop(){
+        super.onStop();
+        this.searchSpecies = "";
     }
 
     // LOCATION LISTENER

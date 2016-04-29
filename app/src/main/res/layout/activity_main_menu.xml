@@ -39,5 +39,23 @@
         android:layout_above="@+id/textView"
         android:layout_centerHorizontal="true" />
 
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_menu_auto"
+        android:layout_above="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:editable="true"
+        android:enabled="true"
+        android:hint="@string/main_menu_auto"
+        android:inputType="text" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_menu_progress"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>

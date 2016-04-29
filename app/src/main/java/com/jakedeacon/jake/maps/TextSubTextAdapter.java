@@ -2,7 +2,6 @@ package com.jakedeacon.jake.maps;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Jake on 2/23/2016.
+ * View designed for Text title and subtext
  */
 public class TextSubTextAdapter extends BaseAdapter {
     private static LayoutInflater inflater=null;
@@ -47,7 +47,7 @@ public class TextSubTextAdapter extends BaseAdapter {
 
         Holder holder=new Holder();
         View rowView;
-        rowView = inflater.inflate(R.layout.nearby_multi_spinner, null);  // USE MY CLASS HERE!
+        rowView = inflater.inflate(R.layout.text_subtext_multi_spinner, null);  // USE MY CLASS HERE!
         // Get all views
         holder.text=(TextView) rowView.findViewById(R.id.nearby_multi_spinner_title);
         holder.subText=(TextView) rowView.findViewById(R.id.nearby_multi_spinner_sub_title);

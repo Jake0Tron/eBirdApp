@@ -9,6 +9,7 @@
     <string name="main_menu_title">Sightings Near Me</string>
     <string name="main_menu_sightings_near_me">Find Sightings Near Me</string>
     <string name="main_menu_copyright">&#169; Jake Deacon 2016</string>
+    <string name="main_menu_auto">Search birds by scientific name</string>
 
     <!-- Sightings near me -->
     <string name="title_activity_sightings_near_me">Sightings Near Me Map</string>
