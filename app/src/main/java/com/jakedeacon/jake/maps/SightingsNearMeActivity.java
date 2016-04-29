@@ -145,6 +145,7 @@ public class SightingsNearMeActivity
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 daysPriorValue = newVal;
                 getBirdsNearMe();
+                getHotspotsNearMe();
             }
         });
 
@@ -160,6 +161,7 @@ public class SightingsNearMeActivity
                 myCircle.remove();
                 drawViewRadius();
                 getBirdsNearMe();
+                getHotspotsNearMe();
             }
         });
 
@@ -313,6 +315,7 @@ public class SightingsNearMeActivity
                 if (!followToggle.isChecked()) {
                     myLatLng = touchLatLng;
                     getBirdsNearMe();
+                    getHotspotsNearMe();
                     drawMyLocation();
                 } else {
                     // pop toast to alert user that toggle is on
@@ -330,7 +333,7 @@ public class SightingsNearMeActivity
         String url = uBuilder.getHotspotURL(myLatLng, radiusValue, daysPriorValue);
 //        String url = "http://ebird.org/ws1.1/ref/hotspot/geo?lat=42.4613266&lng=-76.5059255&dist=5&back=25&hotspot=false&includeProvisional=true&locale=en_US&fmt=xml";
 
-        Log.d("hotspotURL", url);
+//        Log.d("hotspotURL", url);
         this.hotTask = new HotspotAsyncTask();
         this.hotTask.setDelegate(this);
         this.hotTask.execute(url);
@@ -385,55 +388,56 @@ public class SightingsNearMeActivity
         //      {"lng":-76.4572692,"loc-id":"L799199","loc-name":"Cornell Plantations--F.R. Newman Arboretum","lat":42.4520722,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"},
         //      {"lng":-76.4806044,"loc-id":"L269457","loc-name":"Cornell University--Rockwell Azalea Garden","lat":42.4478844,"country-code":"US","subnational2-code":"US-NY-109","subnational1-code":"US-NY"}...
 
-        Log.d("hotspotjson", result.toString());
+//        Log.d("hotspotjson", result.toString());
 
         try {
-            JSONObject o1 = result.getJSONObject("response");
-            // TODO: LOOK AT THIS
-            JSONArray locArr = o1.getJSONArray("location");
+            JSONObject response = result.getJSONObject("response");
+//            Log.d("hotspotO1", response.toString());
+            if (!response.get("result").equals("")){      // ensure there are results
+                JSONObject result1 = response.getJSONObject("result");
+//            Log.d("hotspotO2", result1.toString());
+                JSONArray locArr = result1.getJSONArray("location");
+//            Log.d("hotspotLOCarr", locArr.toString());
+                for (int i=0; i < locArr.length(); i++) {
 
-            for (int i=0; i < locArr.length(); i++) {
+                    //{
+                    //  "lng":-76.4806044,                                          0
+                    //  "loc-id":"L269457",                                         1
+                    //  "loc-name":"Cornell University--Rockwell Azalea Garden",    2
+                    //  "lat":42.4478844,                                           3
+                    //  "country-code":"US",                                        4
+                    // /  "subnational2-code":"US-NY-109",                          5
+                    //  "subnational1-code":"US-NY"                                 6
+                    // }
 
-                //{
-                //  "lng":-76.4806044,                                          0
-                //  "loc-id":"L269457",                                         1
-                //  "loc-name":"Cornell University--Rockwell Azalea Garden",    2
-                //  "lat":42.4478844,                                           3
-                //  "country-code":"US",                                        4
-                // /  "subnational2-code":"US-NY-109",                          5
-                //  "subnational1-code":"US-NY"                                 6
-                // }
+                    JSONObject location = locArr.getJSONObject(i);
+                    double hotLng = 0.0;
+                    double hotLat = 0.0;
+                    String hotName = "";
+                    String locSnip = "";
 
-                JSONObject location = locArr.getJSONObject(i);
-                double hotLng = 0.0;
-                double hotLat = 0.0;
-                String hotName = "";
-                String locSnip = "";
+                    hotLat = location.getDouble("lat");
+                    hotLng = location.getDouble("lng");
 
+                    LatLng locLL = new LatLng(hotLat, hotLng);
 
-                hotLat = location.getDouble("lat");
-                hotLng = location.getDouble("lng");
+                    String displayString = location.getString("loc-name") + " " + location.getString("country-code");
+                    locSnip = location.getString("subnational1-code") + " " + String.valueOf(hotLat) + " " + String.valueOf(hotLng);
+                    hotName = displayString;
 
-                LatLng locLL = new LatLng(hotLat, hotLng);
+                    MarkerOptions locMarker = new MarkerOptions();
+                    locMarker
+//                            .flat(false)
+                            .alpha(0.7f)
+//                            .draggable(false)
+                            .title(hotName)
+                            .snippet(locSnip)
+                            .position(locLL)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon_small));
 
-                String displayString = location.getString("loc-name") + " " + location.getString("country-code");
-                locSnip = location.getString("subnational1-code") + " " + String.valueOf(hotLat) + " " + String.valueOf(hotLng);
-                hotName = displayString;
-
-                MarkerOptions locMarker = new MarkerOptions();
-                locMarker
-                        .position(locLL)
-                        .flat(false)
-                        .alpha(0.7f)
-                        .draggable(false)
-                        .title(hotName)
-                        .snippet(locSnip)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon));
-
-                hotspotMarkers.add(locMarker);
+                    hotspotMarkers.add(locMarker);
+                }
             }
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

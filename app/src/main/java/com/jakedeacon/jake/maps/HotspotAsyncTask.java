@@ -105,7 +105,7 @@ public class HotspotAsyncTask extends AsyncTask<String, Integer, JSONObject> {
         publishProgress();
         if (get != null){
             JSONObject json = null;
-            Log.d("hotspotXML", get);
+//            Log.d("hotspotXML", get);
             try {
                 json = XML.toJSONObject(get);
 //                json = new JSONArray(get);
