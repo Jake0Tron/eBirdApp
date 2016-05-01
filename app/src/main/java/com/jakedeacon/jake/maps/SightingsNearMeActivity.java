@@ -40,10 +40,10 @@ import java.util.HashMap;
 /**
  * Handles map activity with relation to search parameters passed in from MainMenuActivity
  *
+ * @param species - optionally provided scientific name handed in through intent.putExtra()
+ *                If empty, all species will be searched for.
  * @author Jake Deacon
  * @version 1.1
- * @param species - optionally provided scientific name handed in through intent.putExtra()
- *                  If empty, all species will be searched for.
  * @since 2016-04-31
  */
 
@@ -183,14 +183,6 @@ public class SightingsNearMeActivity
                 }
             }
         });
-        daysPriorPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                daysPriorValue = newVal;
-//                getBirdsNearMe();
-//                getHotspotsNearMe();
-            }
-        });
 
         radiusPicker = (NumberPicker) findViewById(R.id.radiusPicker);
         radiusPicker.setMinValue(1);
@@ -208,14 +200,6 @@ public class SightingsNearMeActivity
                 }
             }
         });
-        radiusPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                radiusValue = newVal;
-                //handle radius changes
-
-            }
-        });
 
         sightingResultList = new ArrayList<MarkerOptions>();
         sightingMarkers = new ArrayList<MarkerOptions>();
@@ -226,8 +210,8 @@ public class SightingsNearMeActivity
         matchingHotspotSubTitles = new ArrayList<String>();
         markerTags = new HashMap<Marker, String>();
 
-        this.sightTask = new BirdSightingAsyncTask();
-        this.sightTask.setDelegate(this);
+//        this.sightTask = new BirdSightingAsyncTask();
+//        this.sightTask.setDelegate(this);
         this.uBuilder = new URLBuilder();
 
         // Initialize the location fields
@@ -472,8 +456,9 @@ public class SightingsNearMeActivity
     /**
      * A helper method that calls the camera relocation and location reset methods to re-center the
      * camera as necessary
+     *
      * @param v - the button that is clicked on the activity_sightings_near_me.xml that calls this
-     *            method
+     *          method
      */
     public void resetLocation(View v) {
         resetMyLocation();
@@ -505,6 +490,7 @@ public class SightingsNearMeActivity
     /**
      * Overridden method from the HotspotAsyncTask class that is called as a delegate to allow for
      * data return to the UI thread.
+     *
      * @param result - the JSONObject created in the HotspotAsyncTask that provides a list of
      *               hotspots in a requested radius.
      */
@@ -588,6 +574,7 @@ public class SightingsNearMeActivity
     /**
      * The Overridden Method that is implemented to handle the delegate callback for
      * BirdSightingAsyncTask
+     *
      * @param result - THe JSONArray returned from the BirdSightingAsyncTask listing all birds
      *               within a specific radius
      */

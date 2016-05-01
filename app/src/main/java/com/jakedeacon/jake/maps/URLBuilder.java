@@ -6,24 +6,31 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * Created by Jake on 2/19/2016.
- * Handles URL Construction for eBird API
+ * Handles URL Construction for eBird API calls
+ *
+ * @author Jake Deacon
+ * @version 1.0
+ * @since 2016-02-19
  */
 public class URLBuilder {
 
     private String url;
 
-    // get the URL for nearby sightings based on:
-    //  @param  Lat/lng
-    //  @param  Distance from location (radius in km)
-    //  @param  number of days prior
-    //  https://confluence.cornell.edu/display/CLOISAPI/eBird-1.1-RecentNearbyObservations#eBird-1.1-RecentNearbyObservations-JSON
-    public String getNearbySightingsURL(LatLng location, int radius, int daysPrior){
+    /**
+     * Get the URL for nearby sightings based on:
+     *
+     * @param location  - Lat/lng
+     * @param radius    Distance from location (radius in km)
+     * @param daysPrior number of days prior
+     * @return URL to query for JSON list of hotspots
+     * https://confluence.cornell.edu/display/CLOISAPI/eBird-1.1-RecentNearbyObservations#eBird-1.1-RecentNearbyObservations-JSON
+     */
+    public String getNearbySightingsURL(LatLng location, int radius, int daysPrior) {
 
         // handle data limits
         if (radius > 50)
             radius = 50;
-        else if (radius < 1 )
+        else if (radius < 1)
             radius = 1;
 
         if (daysPrior > 30)
@@ -49,11 +56,19 @@ public class URLBuilder {
         return this.url;
     }
 
-    public String getHotspotURL(LatLng location, int radius, int daysPrior){
+    /**
+     * Get the URL for nearby Hotspots based on:
+     *
+     * @param location  - Lat/lng
+     * @param radius    Distance from location (radius in km)
+     * @param daysPrior number of days prior
+     * @return URL to query for JSON list of hotspots
+     */
+    public String getHotspotURL(LatLng location, int radius, int daysPrior) {
 // handle data limits
         if (radius > 50)
             radius = 50;
-        else if (radius < 1 )
+        else if (radius < 1)
             radius = 1;
 
         if (daysPrior > 30)
@@ -79,7 +94,12 @@ public class URLBuilder {
         return this.url;
     }
 
-    public String getListOfAlleBirds(){
+    /**
+     * Create URL to query for list of all eBird Scientific names
+     *
+     * @return URL to list of all eBird scientific names
+     */
+    public String getListOfAlleBirds() {
 
         // At this point only english names will be returned...
         // translation to be addressed at a later date.
@@ -91,12 +111,19 @@ public class URLBuilder {
         return url;
     }
 
-    public String getNearbySpecificSightings(String sciName, LatLng myLatLng, int radiusValue, int daysPriorValue){
+    /**
+     * @param sciName        - Scientific name to request server for
+     * @param myLatLng       - location to provide in URL
+     * @param radiusValue    - distance from location to provide in URL
+     * @param daysPriorValue - how many days previous to request in URL
+     * @return URL to query for list of specific species sightings
+     */
+    public String getNearbySpecificSightings(String sciName, LatLng myLatLng, int radiusValue, int daysPriorValue) {
 
         // handle data limits
         if (radiusValue > 50)
             radiusValue = 50;
-        else if (radiusValue < 1 )
+        else if (radiusValue < 1)
             radiusValue = 1;
 
         if (daysPriorValue > 30)
@@ -108,7 +135,7 @@ public class URLBuilder {
 
 
         // encode any species query
-        String name= null;
+        String name = null;
         try {
             name = URLEncoder.encode(sciName, "UTF-8").replace("+", "%20");
         } catch (UnsupportedEncodingException e) {
@@ -126,8 +153,7 @@ public class URLBuilder {
         return url;
     }
 
-    public URLBuilder(){
+    public URLBuilder() {
         this.url = "";
     }
-
 }

@@ -111,12 +111,13 @@ public class MainMenuActivity extends AppCompatActivity
      * Handles search term verification that ensures that either NO value or an Autocomplete value
      * is selected to ensure no errors are thrown (BirdNotFound error returns from server if the
      * bird that is being searched for is not found. Scientific names are needed to search.)
+     *
      * @param v - The button clicked in the activity_main_menu.xml that calls this method.
      */
     public void startSightingsNearMeActivity(View v) {
         this.imgButton.setImageResource(R.drawable.button_pressed);
 
-        if (autoVal == null || sciNames.contains(autoVal)) {
+        if (autoVal.equals("") || sciNames.contains(autoVal)) {
             autoVal = "";
             Intent i = new Intent(this, SightingsNearMeActivity.class);
             i.putExtra("species", autoVal);
@@ -125,7 +126,7 @@ public class MainMenuActivity extends AppCompatActivity
             // name is not contained in the list, don't start activity
             // pop Toast saying name not found when search button is hit
             Toast
-                .makeText(this, R.string.error_name_not_found, Toast.LENGTH_SHORT)
+                    .makeText(this, R.string.error_name_not_found, Toast.LENGTH_SHORT)
                     .show();
         }
     }
@@ -133,6 +134,7 @@ public class MainMenuActivity extends AppCompatActivity
     /**
      * Overridden Asynchronous method that is implemented to handle the list of scientific names
      * that are returned to populate the Autocomplete Text box used for searching.
+     *
      * @param output - an ArrayList of Strings containing all the scientific names returned from
      *               eBird server.
      */
@@ -154,6 +156,7 @@ public class MainMenuActivity extends AppCompatActivity
     /**
      * Helper method that hides the built-in keyboard on screen. Called on item selection from
      * Autocomplete Text box
+     *
      * @param activity - The current activity that is displaying the keyboard to be hidden
      */
     public static void hideSoftKeyboard(Activity activity) {
