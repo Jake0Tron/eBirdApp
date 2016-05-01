@@ -35,6 +35,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+/**
+ * Handles map activity with relation to search parameters passed in from MainMenuActivity
+ *
+ * @author Jake Deacon
+ * @version 1.1
+ * @param species - optionally provided scientific name handed in through intent.putExtra()
+ *                  If empty, all species will be searched for.
+ * @since 2016-04-31
+ */
 
 @SuppressWarnings("ALL")
 public class SightingsNearMeActivity
@@ -107,8 +118,13 @@ public class SightingsNearMeActivity
 
     //species to search for
     String searchSpecies;
+    // list of titles of matching hotspots
+    ArrayList<String> matchingHotspotTitles;
+    ArrayList<String> matchingHotspotSubTitles;
 
-    // TODO: DEBUG
+    HashMap<Marker, String> markerTags;
+
+    // DEBUG
     private String TAG = "eBirdSightings";
 
     @SuppressLint("NewApi")
@@ -147,7 +163,7 @@ public class SightingsNearMeActivity
         if (searchSpecies.equals("")) {
             // no specific species, find all
             specSpec = false;
-        }else{
+        } else {
             // find specifoc species
             specSpec = true;
         }
@@ -160,7 +176,7 @@ public class SightingsNearMeActivity
         daysPriorPicker.setOnScrollListener(new NumberPicker.OnScrollListener() {
             @Override
             public void onScrollStateChange(NumberPicker view, int scrollState) {
-                if (scrollState == SCROLL_STATE_IDLE){
+                if (scrollState == SCROLL_STATE_IDLE) {
                     daysPriorValue = view.getValue();
                     getBirdsNearMe();
                     getHotspotsNearMe();
@@ -183,7 +199,7 @@ public class SightingsNearMeActivity
         radiusPicker.setOnScrollListener(new NumberPicker.OnScrollListener() {
             @Override
             public void onScrollStateChange(NumberPicker view, int scrollState) {
-                if (scrollState == SCROLL_STATE_IDLE){
+                if (scrollState == SCROLL_STATE_IDLE) {
                     radiusValue = view.getValue();
                     myCircle.remove();
                     drawViewRadius();
@@ -206,6 +222,9 @@ public class SightingsNearMeActivity
         hotspotMarkers = new ArrayList<MarkerOptions>();
         matchingBirdTitles = new ArrayList<String>();
         matchingBirdSubTitles = new ArrayList<String>();
+        matchingHotspotTitles = new ArrayList<String>();
+        matchingHotspotSubTitles = new ArrayList<String>();
+        markerTags = new HashMap<Marker, String>();
 
         this.sightTask = new BirdSightingAsyncTask();
         this.sightTask.setDelegate(this);
@@ -215,7 +234,7 @@ public class SightingsNearMeActivity
         if (myLocation != null) {
             onLocationChanged(myLocation);
         } else {
-            Toast.makeText(this, "Please Enable GPS!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_gps_enable, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -290,55 +309,108 @@ public class SightingsNearMeActivity
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                if (markerTags.get(marker) == "bird") {
+                    matchingBirdTitles.clear();
+                    matchingBirdSubTitles.clear();
 
-                matchingBirdTitles.clear();
-                matchingBirdSubTitles.clear();
+                    for (int i = 0; i < sightingResultList.size(); i++) {
 
-                for (int i = 0; i < sightingResultList.size(); i++) {
+                        double markerLat = sightingResultList.get(i).getPosition().latitude;
+                        double markerLon = sightingResultList.get(i).getPosition().longitude;
 
-                    double markerLat = sightingResultList.get(i).getPosition().latitude;
-                    double markerLon = sightingResultList.get(i).getPosition().longitude;
+                        double clickLat = marker.getPosition().latitude;
+                        double clickLon = marker.getPosition().longitude;
 
-                    double clickLat = marker.getPosition().latitude;
-                    double clickLon = marker.getPosition().longitude;
+                        String matchingBirdDataTitle = sightingResultList.get(i).getTitle();
+                        String matchingBirdDataSubTitle = sightingResultList.get(i).getSnippet();
 
-                    String matchingBirdDataTitle = sightingResultList.get(i).getTitle();
-                    String matchingBirdDataSubTitle = sightingResultList.get(i).getSnippet();
-
-                    if ((markerLat == clickLat) && (markerLon == clickLon)) {
-                        matchingBirdTitles.add(matchingBirdDataTitle);
-                        matchingBirdSubTitles.add(matchingBirdDataSubTitle);
+                        if ((markerLat == clickLat) && (markerLon == clickLon)) {
+                            matchingBirdTitles.add(matchingBirdDataTitle);
+                            matchingBirdSubTitles.add(matchingBirdDataSubTitle);
+                        }
                     }
-                }
 
-                if (matchingBirdTitles.size() > 0) {
-                    LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
-                    AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
-                    String titleString = getResources().getString(R.string.near_me_alert_title) + " " +
-                            String.valueOf(matchingBirdTitles.size());
+                    if (matchingBirdTitles.size() > 0) {
+                        LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
+                        AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
+                        String titleString = getResources().getString(R.string.sighting_near_me_alert_title) + " " +
+                                String.valueOf(matchingBirdTitles.size());
 
-                    adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
-                            .setTitle(titleString)
-                            .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
+                        adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
+                                .setTitle(titleString)
+                                .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
 
-                    AlertDialog dialog = adb.create();
-                    dialog.show();
+                        AlertDialog dialog = adb.create();
+                        dialog.show();
 
-                    multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
+                        multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
 
-                    if (multiBirdSpinner != null) {
-                        TextSubTextAdapter adapter
-                                = new TextSubTextAdapter(SightingsNearMeActivity.this,
-                                matchingBirdTitles,
-                                matchingBirdSubTitles);
-                        multiBirdSpinner.setAdapter(adapter);
-                        multiBirdSpinner.setSelection(0, true);
+                        if (multiBirdSpinner != null) {
+                            TextSubTextAdapter adapter
+                                    = new TextSubTextAdapter(SightingsNearMeActivity.this,
+                                    matchingBirdTitles,
+                                    matchingBirdSubTitles);
+                            multiBirdSpinner.setAdapter(adapter);
+                            multiBirdSpinner.setSelection(0, true);
+                        }
                     }
+                    return true;
+                } else if (markerTags.get(marker) == "hotspot") {
+                    matchingHotspotTitles.clear();
+                    matchingHotspotSubTitles.clear();
+
+                    for (int i = 0; i < hotspotMarkers.size(); i++) {
+
+                        double markerLat = hotspotMarkers.get(i).getPosition().latitude;
+                        double markerLon = hotspotMarkers.get(i).getPosition().longitude;
+
+                        double clickLat = marker.getPosition().latitude;
+                        double clickLon = marker.getPosition().longitude;
+
+                        String hotspotTitle = hotspotMarkers.get(i).getTitle();
+                        String hotspotSubtitle = hotspotMarkers.get(i).getSnippet();
+
+                        if ((markerLat == clickLat) && (markerLon == clickLon)) {
+                            matchingHotspotTitles.add(hotspotTitle);
+                            matchingHotspotSubTitles.add(hotspotSubtitle);
+                        }
+                    }
+
+                    if (matchingHotspotTitles.size() > 0) {
+                        LayoutInflater inflater = SightingsNearMeActivity.this.getLayoutInflater();
+                        AlertDialog.Builder adb = new AlertDialog.Builder(currentContext);
+                        String titleString = getResources().getString(R.string.hotspot_near_me_alert_title) + " " +
+                                String.valueOf(matchingHotspotTitles.size());
+
+                        adb.setView(inflater.inflate(R.layout.alert_dialog_multiple_sightings_near_me, null))
+                                .setTitle(titleString)
+                                .setNegativeButton(R.string.near_me_close, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog dialog = adb.create();
+                        dialog.show();
+
+                        multiBirdSpinner = (Spinner) dialog.findViewById(R.id.multi_bird_spinner);
+
+                        if (multiBirdSpinner != null) {
+                            TextSubTextAdapter adapter
+                                    = new TextSubTextAdapter(SightingsNearMeActivity.this,
+                                    matchingHotspotTitles,
+                                    matchingHotspotTitles);
+                            multiBirdSpinner.setAdapter(adapter);
+                            multiBirdSpinner.setSelection(0, true);
+                        }
+                    }
+                    return true;
                 }
                 return true;
             }
@@ -365,6 +437,10 @@ public class SightingsNearMeActivity
         getHotspotsNearMe();
     }
 
+    /**
+     * getHotspotsNearMe pulls a URL from the URLBuilder class and starts an asynchronous activity
+     * to provide locations to draw the markers for all hotspots within the requested radius.
+     */
     public void getHotspotsNearMe() {
         String url = uBuilder.getHotspotURL(myLatLng, radiusValue, daysPriorValue);
 //        String url = "http://ebird.org/ws1.1/ref/hotspot/geo?lat=42.4613266&lng=-76.5059255&dist=5&back=25&hotspot=false&includeProvisional=true&locale=en_US&fmt=xml";
@@ -375,12 +451,16 @@ public class SightingsNearMeActivity
         this.hotTask.execute(url);
     }
 
+    /**
+     * getBirdsNearMe pulls a URL from the URLBuilder class and starts an asynchronous activity
+     * to draw locations for all bird sightings within the requested radius
+     */
     public void getBirdsNearMe() {
         String url;
         if (!specSpec) {
             url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
 
-        }else{
+        } else {
             url = uBuilder.getNearbySpecificSightings(searchSpecies, myLatLng, radiusValue, daysPriorValue);
         }
 
@@ -389,17 +469,30 @@ public class SightingsNearMeActivity
         this.sightTask.execute(url);
     }
 
+    /**
+     * A helper method that calls the camera relocation and location reset methods to re-center the
+     * camera as necessary
+     * @param v - the button that is clicked on the activity_sightings_near_me.xml that calls this
+     *            method
+     */
     public void resetLocation(View v) {
         resetMyLocation();
         resetCameraLocation();
     }
 
+    /**
+     * Resets the location used as the user's location after long-pressing the map to view other
+     * areas outside of the visible radius.
+     */
     public void resetMyLocation() {
         this.myLatLng = new LatLng(lat, lon);
         myLocation = locationManager.getLastKnownLocation(provider);
         getBirdsNearMe();
     }
 
+    /**
+     * Helper function that can be used to recenter the camera on the user's current location.
+     */
     public void resetCameraLocation() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(myLatLng)
@@ -409,7 +502,12 @@ public class SightingsNearMeActivity
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    //when hotspot data is returned handle it here
+    /**
+     * Overridden method from the HotspotAsyncTask class that is called as a delegate to allow for
+     * data return to the UI thread.
+     * @param result - the JSONObject created in the HotspotAsyncTask that provides a list of
+     *               hotspots in a requested radius.
+     */
     @Override
     public void hotspotProcessFinish(JSONObject result) {
 
@@ -470,15 +568,15 @@ public class SightingsNearMeActivity
 
                     MarkerOptions locMarker = new MarkerOptions();
                     locMarker
-//                            .flat(false)
                             .alpha(0.7f)
-//                            .draggable(false)
+                            .draggable(false)
                             .title(hotName)
                             .snippet(locSnip)
                             .position(locLL)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.fire_icon_small));
 
                     hotspotMarkers.add(locMarker);
+
                 }
             }
         } catch (JSONException e) {
@@ -487,7 +585,12 @@ public class SightingsNearMeActivity
         drawHotspotList();
     }
 
-    // when bird sighting data is returned handle it here
+    /**
+     * The Overridden Method that is implemented to handle the delegate callback for
+     * BirdSightingAsyncTask
+     * @param result - THe JSONArray returned from the BirdSightingAsyncTask listing all birds
+     *               within a specific radius
+     */
     @Override
     public void sightingProcessFinish(JSONArray result) {
         // There is something odd with how eBird filters their results via location and distance from it.
@@ -602,6 +705,9 @@ public class SightingsNearMeActivity
         drawResultList();
     }
 
+    /**
+     * Helper fucntion that is called to draw the user's marker onto the map as needed.
+     */
     public void drawMyLocation() {
         if (myMarker != null)
             myMarker.remove();
@@ -612,6 +718,10 @@ public class SightingsNearMeActivity
         myMarker = mMap.addMarker(myMarkerOptions);
     }
 
+    /**
+     * Helper method used to draw the view radius circle which is used to determine how large the
+     * radius is when sending requests to BirdSightingAsyncTask
+     */
     public void drawViewRadius() {
         this.circleOptions = new CircleOptions()
                 .center(myLatLng)
@@ -620,18 +730,32 @@ public class SightingsNearMeActivity
         myCircle = mMap.addCircle(circleOptions);
     }
 
+    /**
+     * Helper method that passes through the list of bird sightings to be drawn and plots them on
+     * the map as necessary.
+     * Instances of these markers are added to the markerTags HashMap to allow for determination of
+     * which type of marker is being clicked, and display behaviour accordingly.
+     */
     public void drawResultList() {
         if (sightingResultList.size() > 0) {
             for (int i = 0; i < sightingResultList.size(); i++) {
-                mMap.addMarker(sightingResultList.get(i));
+                Marker m = mMap.addMarker(sightingResultList.get(i));
+                markerTags.put(m, "bird");
             }
         }
     }
 
+    /**
+     * Helper method that passes through the list of hotspots to be drawn and plots them on the map
+     * as necessary.
+     * Instances of these markers are added to the markerTags HashMap to allow for determination of
+     * which type of marker is being clicked, and display behaviour accordingly.
+     */
     public void drawHotspotList() {
         if (hotspotMarkers.size() > 0) {
             for (int i = 0; i < hotspotMarkers.size(); i++) {
-                mMap.addMarker(hotspotMarkers.get(i));
+                Marker m = mMap.addMarker(hotspotMarkers.get(i));
+                markerTags.put(m, "hotspot");
             }
         }
     }
@@ -650,8 +774,9 @@ public class SightingsNearMeActivity
         super.onPause();
         locationManager.removeUpdates(this);
     }
+
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         this.searchSpecies = "";
     }

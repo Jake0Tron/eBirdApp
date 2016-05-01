@@ -1,7 +1,5 @@
 package com.jakedeacon.jake.maps;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.UnsupportedEncodingException;
@@ -88,7 +86,7 @@ public class URLBuilder {
 
         // XML string if needed
         // http://ebird.org/ws1.1/ref/taxa/ebird?cat=species,spuh&fmt=XML&locale=en_US
-        this.url = "http://ebird.org/ws1.1/ref/taxa/ebird?cat=species,spuh&fmt=json&locale=en_US";
+        this.url = "http://ebird.org/ws1.1/ref/taxa/ebird?cat=domestic,form,hybrid,intergrade,issf,slash,species,spuh&fmt=json&locale=en_US";
 
         return url;
     }

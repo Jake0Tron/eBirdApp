@@ -2,7 +2,7 @@ package com.jakedeacon.jake.maps;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.util.Log;
+import android.view.View;
 import android.widget.ProgressBar;
 
 import org.json.JSONArray;
@@ -114,11 +114,9 @@ public class AsyncSciNameTask extends AsyncTask<String, Integer, ArrayList<Strin
         if (act != null) {
             this.progress = (ProgressBar) act.findViewById(R.id.main_menu_progress);
             this.progress.setEnabled(true);
+            this.progress.setVisibility(View.VISIBLE);
             this.progress.setProgress(progress[0]);
-        }else{
-
         }
-
     }
 
 

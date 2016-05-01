@@ -2,7 +2,9 @@
     <string name="app_name">Birds Near You</string>
     <string name="title_activity_maps">Submit Sighting</string>
     <string name="version_code">1</string>
-    <string name="version_string">1.0</string>
+    <string name="version_string">1.1</string>
+    <string name="error_gps_enable">Please Enable GPS!</string>
+    <string name="error_name_not_found">No matching scientific name found!</string>
 
     <!-- Main Menu-->
     <!-- <string name="main_menu_"></string> -->
@@ -20,6 +22,7 @@
     <string name="near_me_follow">Follow Me</string>
     <string name="near_me_toggle_error">Please Disable following to change location!</string>
     <!-- Sighting near me alert-->
-    <string name="near_me_alert_title">Bird Species Near Me: </string>
+    <string name="sighting_near_me_alert_title">Bird Species Near Here: </string>
+    <string name="hotspot_near_me_alert_title">Hotspots Near Here: </string>
 
 </resources>
