@@ -106,22 +106,22 @@ public class SightingsNearMeActivity
     // Follow Toggle
     private ToggleButton followToggle;
 
-    // Hotspot task request
-    private HotspotAsyncTask hotTask;
-
     // list of markers for hotspots
     private ArrayList<MarkerOptions> hotspotMarkers;
-    private Context currentContext;
 
+    private Context currentContext;
     // boolean indicating whether or not species-specific search is being used
     boolean specSpec;
 
     //species to search for
     String searchSpecies;
+
+    // Hotspot task request
+    private HotspotAsyncTask hotTask;
     // list of titles of matching hotspots
     ArrayList<String> matchingHotspotTitles;
     ArrayList<String> matchingHotspotSubTitles;
-
+    // Map of markers/string ID's that determine which marker is being clicked on Marker Click
     HashMap<Marker, String> markerTags;
 
     // DEBUG
@@ -210,8 +210,6 @@ public class SightingsNearMeActivity
         matchingHotspotSubTitles = new ArrayList<String>();
         markerTags = new HashMap<Marker, String>();
 
-//        this.sightTask = new BirdSightingAsyncTask();
-//        this.sightTask.setDelegate(this);
         this.uBuilder = new URLBuilder();
 
         // Initialize the location fields
@@ -395,8 +393,9 @@ public class SightingsNearMeActivity
                         }
                     }
                     return true;
+                } else {
+                    return false;
                 }
-                return true;
             }
         });// end markerclickListener
 
@@ -437,15 +436,15 @@ public class SightingsNearMeActivity
 
     /**
      * getBirdsNearMe pulls a URL from the URLBuilder class and starts an asynchronous activity
-     * to draw locations for all bird sightings within the requested radius
+     * to draw locations for all bird sightings within the requested radius, depending on whether or
+     * not the request is for a specific species is requested the URL will be adjusted accordingly.
      */
     public void getBirdsNearMe() {
         String url;
-        if (!specSpec) {
-            url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
-
-        } else {
+        if (specSpec) {
             url = uBuilder.getNearbySpecificSightings(searchSpecies, myLatLng, radiusValue, daysPriorValue);
+        } else {
+            url = uBuilder.getNearbySightingsURL(myLatLng, radiusValue, daysPriorValue);
         }
 
         this.sightTask = new BirdSightingAsyncTask();
@@ -466,8 +465,8 @@ public class SightingsNearMeActivity
     }
 
     /**
-     * Resets the location used as the user's location after long-pressing the map to view other
-     * areas outside of the visible radius.
+     * Helper methodResets the location used as the user's location after long-pressing the map to
+     * view other areas outside of the visible radius.
      */
     public void resetMyLocation() {
         this.myLatLng = new LatLng(lat, lon);
@@ -476,7 +475,7 @@ public class SightingsNearMeActivity
     }
 
     /**
-     * Helper function that can be used to recenter the camera on the user's current location.
+     * Helper method that can be used to recenter the camera on the user's current location.
      */
     public void resetCameraLocation() {
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -496,7 +495,6 @@ public class SightingsNearMeActivity
      */
     @Override
     public void hotspotProcessFinish(JSONObject result) {
-
         hotspotMarkers.clear();
 
         //{
@@ -519,12 +517,9 @@ public class SightingsNearMeActivity
 
         try {
             JSONObject response = result.getJSONObject("response");
-//            Log.d("hotspotO1", response.toString());
             if (!response.get("result").equals("")) {      // ensure there are results
                 JSONObject result1 = response.getJSONObject("result");
-//            Log.d("hotspotO2", result1.toString());
                 JSONArray locArr = result1.getJSONArray("location");
-//            Log.d("hotspotLOCarr", locArr.toString());
                 for (int i = 0; i < locArr.length(); i++) {
 
                     //{
